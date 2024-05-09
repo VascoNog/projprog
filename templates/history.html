@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block title %}
+History
+{% endblock %}
+
+{% block main %}
+<h1>HISTORY</h1>
+
+<table style="width:100%">
+    <thead>
+        <tr class="noir">
+            <th>Symbol</th>
+            <th>Shares</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Date</th>
+            <th>Hour</th>
+            <th>Type of transaction</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transac in user_history %}
+        <tr class="{% if transac.type_transac == 'BOUGHT' %} bought-row {% elif transac.type_transac == 'SOLD' %} sold-row {% endif %}">
+            <td>{{ transac.symbol }}</td>
+            <td>{{ transac.shares }}</td>
+            <td>{{ transac.price | usd }}</td>
+            <td>{{ transac.total_purchase | usd }}</td>
+            <td>{{ transac.date }}</td>
+            <td>{{ transac.hour }}</td>
+            <td>{{ transac.type_transac }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
