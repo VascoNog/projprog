@@ -6,7 +6,6 @@ from flask import jsonify
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
-import random
 
 from helpers import apology, login_required, lookup, usd, format_date, format_hour
 
