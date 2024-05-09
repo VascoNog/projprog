@@ -26,24 +26,3 @@ th {
     color: white;
     line-height: 4;
 }
-
-/* INDEX */
-
-th.noir,
-td.noir {
-    border-collapse: collapse;
-    background-color: black;
-    color: white;
-    line-height: 4;
-}
-
-
-/* HISTORY */
-
-.bought-row {
-    background-color: white;
-}
-
-.sold-row {
-    background-color: gray;
-}
