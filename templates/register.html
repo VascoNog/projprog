@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Registo
+{% endblock %}
+
+{% block main %}ls
+<h2>Registo</h2>
+    <form action="/register" method="post">
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Nome de utilizador" type="text">
+        </div>
+        <div>
+            <input name="password" placeholder="Palavra-passe" type="password">
+        </div>
+        <div>
+            <input name="confirmation" placeholder="Confirmar palavra-passe" type="password">
+        </div>
+        <button type="submit">Registar</button>
+    </form>
+{% endblock %}
