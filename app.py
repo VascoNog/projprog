@@ -30,16 +30,17 @@ def index():
 #     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 #     egar TEXT NOT NULL UNIQUE,
 #     data DATETIME NOT NULL,
-#     ano INTEGER NOT NULL,
 #     apa_estab TEXT NOT NULL,
 #     apa_trans TEXT NOT NULL,
 #     matricula TEXT NOT NULL,
-#     codler TEXT NOT NULL,
+#     codLER TEXT NOT NULL,
 #     ton REAL NOT NULL,
-#     apa_dest TEXT NOT NULL
-# );
+#     apa_dest TEXT NOT NULL,
+#     empresa_id INTEGER NOT NULL
+# )
     
     return apology("TODO")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -136,7 +137,7 @@ def register():
         return render_template("register.html")
     
     
-@app.route("/insert")
+@app.route("/insert", methods=["GET", "POST"])
 @login_required
 def insert():
     
@@ -144,8 +145,36 @@ def insert():
         return render_template("insert.html")
     
     else:
-        return apology("TODO")
-    
+        egar = request.form.get("egar")
+        data = request.form.get("data")
+        apa_estab = request.form.get("apa_estab")
+        apa_trans = request.form.get("apa_trans")
+        matricula = request.form.get("matricula")
+        codLER = request.form.get("codLER")
+        ton = request.form.get("ton")
+        apa_dest = request.form.get("apa_dest")
         
-    
-    
+        if not egar:
+            return apology("Falta número da e-GAR", 403)
+        if not data:
+            return apology("Falta data", 403)
+        if not apa_estab:
+            return apology("Falta APA do estabelecimento", 403)
+        if not apa_trans:
+            return apology("Falta APA do transportador", 403)
+        if not matricula:
+            return apology("Falta matrícula", 403)
+        if not codLER:
+            return apology("Falta código LER", 403)
+        if not ton:
+            return apology("Falta tonelagem", 403)
+        if not apa_dest:
+            return apology("Falta APA do destinatário", 403)
+
+       
+        # Inserir e-GAR na tabela wastemap
+        db.execute("INSERT INTO wastemap (egar,data,apa_estab,apa_trans,matricula,codLER,ton,apa_dest,empresa_id)\
+                VALUES(?,?,?,?,?,?,?,?,?)",egar,data,apa_estab,apa_trans,matricula,codLER,ton,apa_dest, session["user_id"])
+        
+        return redirect('/insert') 
+
