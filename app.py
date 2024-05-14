@@ -28,8 +28,7 @@ def homepage():
     return apology("TODO")
 
 
-@app.route("/login")
-@login_required
+@app.route("/login", methods=["GET", "POST"])
 def login():
     """Log user in"""
     # Forget any user_id
