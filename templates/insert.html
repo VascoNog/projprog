@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Insert
+{% endblock %}
+
+{% block main %}
+<h2>Inserir e-GAR's</h2>
+    <form action="/insert" method="post">
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="egar" placeholder="número e-GAR" type="text">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="data" placeholder="dia/mês" type="text">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="ano" placeholder="ano" type="text">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_estab" placeholder="APA estabelecimento" type="text">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_trans" placeholder="APA transportador" type="text">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="matrícula" placeholder="matrícula" type="text">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="codLER" placeholder="LER" type="text">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="ton" placeholder="tonelagem" type="number" min="0.001">
+        </div>
+
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_dest" placeholder="APA destinatário" type="text">
+        </div>
+        <button type="submit">Submeter</button>
+    </form>
+{% endblock %}

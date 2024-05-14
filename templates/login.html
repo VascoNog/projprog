@@ -5,15 +5,14 @@ Login
 {% endblock %}
 
 {% block main %}
-
 <h2>Login</h2>
-<form>
-    <label>Nome de utilizador:</label><br>
-    <input type="text" name="username"><br>
-    <label>Palavra-passe:</label><br>
-    <input type="text" name="password">
-</form>
-
+    <form action="/login" method="post">
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Nome de utilizador" type="text">
+        </div>
+        <div>
+            <input name="password" placeholder="Palavra-passe" type="password">
+        </div>
+        <button type="submit">Login</button>
+    </form>
 {% endblock %}
-
-
