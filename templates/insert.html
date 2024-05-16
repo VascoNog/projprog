@@ -8,25 +8,46 @@
 <h2>Inserir e-GAR's</h2>
     <form action="/insert" method="post">
         <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="data" placeholder="ano-mês-dia" type="date">
+        </div>
+        <div>
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="egar" placeholder="número e-GAR" type="text">
         </div>
         <div>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="data" placeholder="dia/mês/ano" type="text">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="obra" placeholder="nome da obra" type="text">
         </div>
         <div>
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_estab" placeholder="APA estabelecimento" type="text">
         </div>
         <div>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_trans" placeholder="APA transportador" type="text">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="transp" placeholder="nome transportador" type="text">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nif_transp" placeholder="NIF transportador" type="number" min="99999999" max="999999999">
         </div>
         <div>
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="matricula" placeholder="matrícula" type="text">
         </div>
         <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_transp" placeholder="APA transportador" type="text">
+        </div>
+        <div>
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="codLER" placeholder="LER" type="text">
         </div>
         <div>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="ton" placeholder="tonelagem" type="number" min="0.001" step="0.001">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="residuo" placeholder="Designação do resíduo" type="text">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="ton" placeholder="qtd(ton.)" type="number" min="0.001" step="0.001">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="dest_final" placeholder="operação de valorização (ex: R12)" type="text">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="dest" placeholder="nome destinatário" type="text">
+        </div>
+        <div>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nif_dest" placeholder="NIF destinatário" type="number" min="99999999" max="999999999">
         </div>
         <div>
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_dest" placeholder="APA destinatário" type="text">

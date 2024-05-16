@@ -1,0 +1,45 @@
+C:\sqlite\sqlite3.exe -header database.db "SELECT * FROM wastemap;" > wastemap.txt
+C:\sqlite\sqlite3.exe database.db "SELECT * FROM users" > users.txt
+C:\sqlite\sqlite3.exe database.db "SELECT * FROM apa_code_contract" > apa_code_contract.txt                     
+C:\sqlite\sqlite3.exe database.db "SELECT * FROM apa_code_contract_test" > apa_code_contract.txt
+
+Copiei desta maneira o ficheiro csv para a tabela apa_code_contract:
+.mode csv
+.import 'C:/Users/Vasco Nogueira/proj_prog/projprog/projectcs50/apa_code_contract.csv' apa_code_contract
+
+
+
+Criação da tabela wastemap:
+
+    CREATE TABLE wastemap (
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        data DATETIME NOT NULL,
+        egar TEXT NOT NULL UNIQUE,
+        obra TEXT NOT NULL,
+        apa_estab TEXT NOT NULL,
+        transp TEXT NOT NULL,
+        nif_transp INTEGER NOT NULL,
+        matricula TEXT NOT NULL,
+        apa_transp TEXT NOT NULL,
+        codLER TEXT NOT NULL,
+        residuo TEXT NOT NULL,
+        ton REAL NOT NULL,
+        dest_final TEXT NOT NULL,
+        dest TEXT NOT NULL,
+        nif_dest INTEGER NOT NULL,
+        apa_dest TEXT NOT NULL
+        empresa_id INTEGER NOT NULL);
+
+
+    CREATE TABLE apa_code_contract(
+        apa_code TEXT NOT NULL,
+        contract_full TEXT NOT NULL,
+        contract_short TEXT NOT NULL
+    );
+
+
+        CREATE TABLE ler_designation (
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        ler_code TEXT NOT NULL,
+        designation TEXT NOT NULL
+    );

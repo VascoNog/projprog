@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block title %}
+History
+{% endblock %}
+
+{% block main %}
+
+<h2>Mapa de Resíduos</h2>
+<table style="width:100%">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>N.º e-GAR</th>
+            <th>Obra</th>
+            <!-- <th>APA Estab.</th> -->
+            <th>Transp.</th>
+            <!-- <th>NIF Transp.</th> -->
+            <!-- <th>Matrícula</th> -->
+            <!-- <th>APA Transp.</th> -->
+            <th>Código LER</th>
+            <!-- <th>Resíduo</th> -->
+            <th>Qtd(ton.)</th>
+            <th>Destino Final</th>
+            <th>Dest.</th>
+            <!-- <th>NIF Dest.</th>
+            <th>APA Dest.</th> -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in map %}
+        <tr>
+            <td>{{ row.data }}</td>
+            <td>{{ row.egar }}</td>
+            <td>{{ row.obra }}</td>
+            <!-- <td>{{ row.apa_estab }}</td> -->
+            <td>{{ row.transp }}</td>
+            <!-- <td>{{ row.nif_transp }}</td> -->
+            <!-- <td>{{ row.matricula }}</td> -->
+            <!-- <td>{{ row.apa_transp }}</td> -->
+            <td>{{ row.codLER }}</td>
+            <!-- <td>{{ row.residuo }}</td> -->
+            <td>{{ row.ton }}</td>
+            <td>{{ row.dest_final }}</td>
+            <td>{{ row.dest }}</td>
+            <!-- <td>{{ row.nif_dest }}</td>
+            <td>{{ row.apa_dest }}</td> -->
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

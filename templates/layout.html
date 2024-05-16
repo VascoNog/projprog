@@ -11,6 +11,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         
+        <!-- Fazer com que este title apareça -->
         <title>TEC OPTIMIZER: {% block title %}{% endblock %}</title>
 
     </head>
@@ -21,15 +22,22 @@
                 <div>
                     {% if session["user_id"] %}
                         <ul>
+                            <li><a href="/establishments">Estabelecimentos</a></li>
+                        </ul>
+                        <ul>
                             <li><a href="/insert">Inserir e-GAR's</a></li>
+                        </ul>
+                        <ul>
+                            <li><a href="/history">Mapa de Resíduos</a></li>
+                        </ul>
+                        <ul>
+                            <li><a href="/mirr">MIRR</a></li>
                         </ul>
                         <ul>
                             <li><a href="/logout">Log Out</a></li>
                         </ul>
                     {% else %}
                         <ul>
-                            
-                            <!-- Quererei um botão para o registo? Será de utilizar único -->
                             <li><a href="/register">Registo</a></li>
                             <li><a href="/login">Log In</a></li>
                         </ul>
@@ -37,6 +45,14 @@
                 </div>
             </div>
         </nav>
+        {% if get_flashed_messages() %}
+        <header>
+            <!-- <div class="alert alert-primary mb-0 text-center" role="alert"> -->
+            <div>
+                {{ get_flashed_messages() | join(" ") }}
+            </div>
+        </header>
+        {% endif %}
             {% block main %}{% endblock %}
     </body>
 

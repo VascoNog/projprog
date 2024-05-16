@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Estabelecimentos
+{% endblock %}
+
+{% block main %}
+<form action="/establishments" method="post">
+    <div>
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_code" placeholder="Código APA" type="text">
+    </div>
+    <div>
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nome_estab" placeholder="Nome completo do estabelecimento/obra" type="text">
+    </div>
+    <div>
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nome_estab_curto" placeholder="Nome curto estabelecimento/obra" type="text">
+    </div>
+    <button type="submit">Gravar</button>
+</form>
+
+<h2>Estabelecimentos</h2>
+<table style="width:100%">
+    <thead>
+        <tr>
+            <th>APA do estabelecimento</th>
+            <th>Nome completo</th>
+            <th>Nome curto</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in all_estab %}
+        <tr>
+            <td>{{ row.apa_code }}</td>
+            <td>{{ row.contract_full }}</td>
+            <td>{{ row.contract_short }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

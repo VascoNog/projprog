@@ -25,21 +25,8 @@ db = SQL("sqlite:///database.db")
 @login_required
 def index():
     
-# Criação da tabela wastemap:
-#     CREATE TABLE wastemap (
-#     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-#     egar TEXT NOT NULL UNIQUE,
-#     data DATETIME NOT NULL,
-#     apa_estab TEXT NOT NULL,
-#     apa_trans TEXT NOT NULL,
-#     matricula TEXT NOT NULL,
-#     codLER TEXT NOT NULL,
-#     ton REAL NOT NULL,
-#     apa_dest TEXT NOT NULL,
-#     empresa_id INTEGER NOT NULL
-# )
-    
-    return apology("TODO")
+
+    return render_template("layout.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -145,36 +132,135 @@ def insert():
         return render_template("insert.html")
     
     else:
-        egar = request.form.get("egar")
         data = request.form.get("data")
+        egar = request.form.get("egar")
+        obra = request.form.get("obra")
         apa_estab = request.form.get("apa_estab")
-        apa_trans = request.form.get("apa_trans")
+        transp = request.form.get("transp")
+        nif_transp = request.form.get("nif_transp")
         matricula = request.form.get("matricula")
+        apa_transp = request.form.get("apa_transp")
         codLER = request.form.get("codLER")
+        residuo = request.form.get("residuo")
         ton = request.form.get("ton")
+        dest_final = request.form.get("dest_final")
+        dest = request.form.get("dest")
+        nif_dest = request.form.get("nif_dest")
         apa_dest = request.form.get("apa_dest")
         
-        if not egar:
-            return apology("Falta número da e-GAR", 403)
         if not data:
-            return apology("Falta data", 403)
+            return apology("Faltou a data")
+        if not egar:
+            return apology("Faltou número da e-GAR")
+        if not obra:
+            return apology("Faltou designação da obra")
         if not apa_estab:
-            return apology("Falta APA do estabelecimento", 403)
-        if not apa_trans:
-            return apology("Falta APA do transportador", 403)
+            return apology("Faltou APA do estabelecimento/obra")
+        if not transp:
+            return apology("Faltou designação do transportador")
+        if not nif_transp:
+            return apology("Faltou NIF do transportador")
         if not matricula:
-            return apology("Falta matrícula", 403)
+            return apology("Faltou a matrícula")
         if not codLER:
-            return apology("Falta código LER", 403)
+            return apology("Faltou LER")
+        if not residuo:
+            return apology("Faltou designação do resíduo")
         if not ton:
-            return apology("Falta tonelagem", 403)
+            return apology("Faltou tonelagem")
+        if not dest_final:
+            return apology("Faltou destino final (ex: R12)")
+        if not dest:
+            return apology("Faltou designação do destinatário")
         if not apa_dest:
-            return apology("Falta APA do destinatário", 403)
-
-       
-        # Inserir e-GAR na tabela wastemap
-        db.execute("INSERT INTO wastemap (egar,data,apa_estab,apa_trans,matricula,codLER,ton,apa_dest,empresa_id)\
-                VALUES(?,?,?,?,?,?,?,?,?)",egar,data,apa_estab,apa_trans,matricula,codLER,ton,apa_dest, session["user_id"])
+            return apology("Faltou APA do destinatário")
+        if not nif_dest:
+            return apology("Faltou NIF do destinatário")
         
-        return redirect('/insert') 
+        # Parametro que pode faltar
+        if not apa_transp:
+            apa_transp = "--"
+            
+        # Evitar duplicação de e-GAR's:
+        egar_in_wastemap = db.execute("SELECT * FROM wastemap WHERE wastemap.egar = ?", egar)
+        if egar_in_wastemap:
+            return apology(f"Uma e-GAR com o número {egar} já tinha sido submetida anteriormente, verifique no Mapa",403)    
+    
+        # Inserir todos os parâmetros da e-GAR na tabela wastemap
+        db.execute(
+            "INSERT INTO wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,empresa_id)\
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,session["user_id"])
+        
+        return redirect('/insert')
+    
+@app.route("/history")
+@login_required
+def history(): 
+    
+    # map = db.execute(
+    #     "SELECT data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
+    #         FROM wastemap WHERE wastemap.empresa_id = ? ORDER BY data ASC", session["user_id"])
+    
+    # Forma reduzida:
+    map = db.execute(
+        "SELECT data,egar,obra,transp,codLER,ton,dest_final,dest\
+            FROM wastemap WHERE wastemap.empresa_id = ?\
+                ORDER BY data ASC", session["user_id"])
+    
+    return render_template("history.html", map=map)
 
+@app.route("/establishments", methods=["GET", "POST"])
+@login_required
+def establishments(): 
+
+    if request.method == "GET":
+        all_estab = db.execute("SELECT apa_code,contract_full,contract_short \
+            FROM apa_code_contract ORDER BY apa_code DESC")
+        
+        return render_template("establishments.html", all_estab=all_estab)
+    
+    else:
+        apa_code = request.form.get("apa_code")
+        nome_estab = request.form.get("nome_estab")
+        nome_estab_curto = request.form.get("nome_estab_curto")
+        
+        if not apa_code:
+            return apology("Faltou o código APA")
+        if not nome_estab:
+            return apology("Faltou nome completo do estabelecimento/obra")
+        if not nome_estab_curto:
+            return apology("Faltou nome curto do estabelecimento/obra")
+        
+        # Insert new establishment or contract. Ensure non-duplication of APA code
+        try:
+            db.execute("INSERT INTO apa_code_contract (apa_code, contract_full,contract_short)\
+                VALUES(?,?,?)", apa_code,nome_estab,nome_estab_curto)
+        except:
+            # table apa_code_contract: apa_code TEXT NOT NULL UNIQUE
+            flash("O código APA que tentou inserir já se encontra no sistema!")
+            return redirect("/establishments")
+    
+        # INSERT INTO table_name (column_a, column_b)
+        # VALUES ("value_a", "value_b");
+                
+        # Show all establishments
+        all_estab = db.execute("SELECT apa_code,contract_full,contract_short \
+            FROM apa_code_contract ORDER BY apa_code DESC")
+        
+        return render_template("establishments.html", all_estab=all_estab)
+        
+@app.route("/mirr", methods=["GET", "POST"])
+@login_required
+def mirr():
+    
+    # Fazer tabelas do MIRR
+    
+    return apology("TODO")
+
+
+
+# Fazer os selects ao inserir e-GAR's - Ver situações idênticas
+# Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
+# Adicinar função de editar/eliminar nos Estabelecimentos
+# Adicinar função de editar/eliminar na History
+# Fazer MIRR
