@@ -264,3 +264,10 @@ def mirr():
 # Adicinar função de editar/eliminar nos Estabelecimentos
 # Adicinar função de editar/eliminar na History
 # Fazer MIRR
+
+
+# Fazer os selects ao inserir e-GAR's - Ver situações idênticas
+# Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
+# Adicinar função de editar/eliminar nos Estabelecimentos
+# Adicinar função de editar/eliminar na History
+# Fazer MIRR
