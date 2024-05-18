@@ -315,4 +315,5 @@ def mirr():
 # Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
 # Adicinar função de editar/eliminar nos Estabelecimentos e nos Códigos LER
 # Adicinar função de editar/eliminar na History
+# adicionar mais mensagens flash
 # Fazer MIRR
