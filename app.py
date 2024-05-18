@@ -7,10 +7,14 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
 
-from helpers import apology, login_required
+from helpers import apology, login_required, format_codLER
 
 # Configure application
 app = Flask(__name__)
+
+# APAGAR SE ACABAR POR NÃO UTILIZAR EM JINJA
+app.jinja_env.filters["format_codLER"] = format_codLER
+
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
@@ -44,9 +48,6 @@ def login():
         elif not request.form.get("password"):
             return apology("Faltou a palavra-passe", 403)
         
-        x = request.form.get("username")    
-        print("NOME USER: ", x)
-    
         # Creating users table
         # CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username TEXT NOT NULL UNIQUE, hash TEXT NOT NULL);
         
@@ -163,7 +164,7 @@ def insert():
         if not matricula:
             return apology("Faltou a matrícula")
         if not codLER:
-            return apology("Faltou LER")
+            return apology("Faltou código LER")
         if not residuo:
             return apology("Faltou designação do resíduo")
         if not ton:
@@ -225,11 +226,11 @@ def establishments():
         nome_estab_curto = request.form.get("nome_estab_curto")
         
         if not apa_code:
-            return apology("Faltou o código APA")
+            return apology("Faltou o código APA", 403)
         if not nome_estab:
-            return apology("Faltou nome completo do estabelecimento/obra")
+            return apology("Faltou nome completo do estabelecimento/obra", 403)
         if not nome_estab_curto:
-            return apology("Faltou nome curto do estabelecimento/obra")
+            return apology("Faltou nome curto do estabelecimento/obra", 403)
         
         # Insert new establishment or contract. Ensure non-duplication of APA code
         try:
@@ -249,6 +250,58 @@ def establishments():
         
         return render_template("establishments.html", all_estab=all_estab)
         
+@app.route("/codler_description", methods=["GET", "POST"])
+@login_required
+def codler_description():
+
+    if request.method == "GET":
+        all_codLER = db.execute("SELECT * FROM codler_description")
+        
+        return render_template("codler_description.html", all_codLER=all_codLER)
+    
+    else:
+        
+        codLER = request.form.get("codLER")
+        description = request.form.get("description")
+        
+        if not codLER:
+            return apology("Faltou código LER", 403)
+        
+        # Confirm that the LER code entered is in one of the two allowed formats: XX XX XX or XXXXXX with X = digit
+        if len(codLER) == 8 and codLER[0:2].isdigit() and codLER[2].isspace() and codLER[3:5].isdigit() and codLER[5].isspace() and codLER[6:].isdigit():
+            codLER = f"{codLER[:2]}{codLER[3:5]}{codLER[6:]}"
+            print("")
+            print("Código LER: ", codLER)
+            print("")
+        elif len(codLER) == 6 and codLER.isdigit():
+            codLER = codLER
+            print("")
+            print("Código LER: ", codLER)
+            print("")
+        else:
+            return apology("O código LER inserido deve ter 6 dígitos no formato XX XX XX ou XXXXXX", 403)
+             
+        if not description:
+            return apology("Faltou descrição do código LER", 403)
+        
+        # Insert new code "LER" and description. Ensure non-duplication of code "LER"
+        try:
+            db.execute("INSERT INTO codler_description (codLER, description)\
+                VALUES(?,?)", format_codLER(codLER), description)
+        except:
+            # table codler_description: codLER TEXT NOT NULL UNIQUE
+            flash("O código LER que tentou inserir já se encontra no sistema!")
+            return redirect("/codler_description")
+        
+        # INSERT INTO table_name (column_a, column_b)
+        # VALUES ("value_a", "value_b");
+                
+        # Show all codes "LER"
+        all_codLER = db.execute("SELECT * FROM codler_description")
+        
+        return render_template("codler_description.html", all_codLER=all_codLER)
+        
+
 @app.route("/mirr", methods=["GET", "POST"])
 @login_required
 def mirr():
@@ -258,16 +311,8 @@ def mirr():
     return apology("TODO")
 
 
-
 # Fazer os selects ao inserir e-GAR's - Ver situações idênticas
 # Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
-# Adicinar função de editar/eliminar nos Estabelecimentos
-# Adicinar função de editar/eliminar na History
-# Fazer MIRR
-
-
-# Fazer os selects ao inserir e-GAR's - Ver situações idênticas
-# Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
-# Adicinar função de editar/eliminar nos Estabelecimentos
+# Adicinar função de editar/eliminar nos Estabelecimentos e nos Códigos LER
 # Adicinar função de editar/eliminar na History
 # Fazer MIRR

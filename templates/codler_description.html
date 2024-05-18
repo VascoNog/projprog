@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+LER
+{% endblock %}
+
+{% block main %}
+<h2>Inserir novo código LER</h2>
+<form action="/codler_description" method="post">
+    <div>
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="codLER" placeholder="LER (no formato XX XX XX ou XXXXXX)" type="text">
+    </div>
+    <div>
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="description" placeholder="Descrição LER" type="text">
+    </div>
+    <button type="submit">Gravar</button>
+</form>
+
+<h2>Códigos LER inseridos</h2>
+<table style="width:100%">
+    <thead>
+        <tr>
+            <th>Código LER</th>
+            <th>Descrição</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in all_codLER %}
+        <tr>
+            <td>{{ row.codLER }}</td>
+            <td>{{ row.description }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

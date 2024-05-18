@@ -49,3 +49,9 @@ def login_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
+
+def format_codLER(value):
+    """Format code "LER" """
+    # format “value” to the format: NN NN NN (N = Number)
+    return f"{value[:2]} {value[2:4]} {value[4:]}"
+    

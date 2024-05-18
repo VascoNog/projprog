@@ -7,6 +7,9 @@ Copiei desta maneira o ficheiro csv para a tabela apa_code_contract:
 .mode csv
 .import 'C:/Users/Vasco Nogueira/proj_prog/projprog/projectcs50/apa_code_contract.csv' apa_code_contract
 
+WLS:
+sqlite3 -cmd ".mode csv" -cmd ".import codler_description.csv codler_description" -cmd ".exit" database.db
+
 
 
 Criação da tabela wastemap:
@@ -32,14 +35,13 @@ Criação da tabela wastemap:
 
 
     CREATE TABLE apa_code_contract(
-        apa_code TEXT NOT NULL,
+        apa_code TEXT NOT NULL UNIQUE,
         contract_full TEXT NOT NULL,
         contract_short TEXT NOT NULL
     );
 
 
-        CREATE TABLE ler_designation (
-        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ler_code TEXT NOT NULL,
-        designation TEXT NOT NULL
+    CREATE TABLE codler_description (
+        codLER TEXT NOT NULL UNIQUE,
+        description TEXT NOT NULL 
     );
