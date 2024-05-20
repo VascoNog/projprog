@@ -14,10 +14,11 @@
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="egar" placeholder="número e-GAR" type="text">
         </div>
         <div>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="obra" placeholder="nome da obra" type="text">
-        </div>
-        <div>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_estab" placeholder="APA estabelecimento" type="text">
+            <select name = "obra">
+                {% for obra in obras %}
+                    <option value = "{{obra}}" >{{obra}}</option>
+                {% endfor %}
+            </select>
         </div>
         <div>
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="transp" placeholder="nome transportador" type="text">
@@ -32,10 +33,11 @@
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_transp" placeholder="APA transportador" type="text">
         </div>
         <div>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="codLER" placeholder="LER" type="text">
-        </div>
-        <div>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="residuo" placeholder="Designação do resíduo" type="text">
+            <select name = "codLER">
+                {% for codLER in todos_codLer %}
+                    <option value = "{{codLER}}" >{{codLER}}</option>
+                {% endfor %}
+            </select>
         </div>
         <div>
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="ton" placeholder="qtd(ton.)" type="number" min="0.001" step="0.001">

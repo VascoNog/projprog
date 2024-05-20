@@ -130,19 +130,25 @@ def register():
 def insert():
     
     if request.method == "GET":
-        return render_template("insert.html")
-    
+        contracts = db.execute("SELECT contract_short FROM apa_code_contract\
+            ORDER BY contract_short ASC")
+        codes_LER = db.execute("SELECT codLER FROM codler_description\
+            ORDER BY codLER ASC")
+        return render_template(
+            "insert.html",
+            obras = [contract["contract_short"]for contract in contracts],
+            todos_codLer = [codLER["codLER"] for codLER in codes_LER],
+        )
+        
     else:
         data = request.form.get("data")
         egar = request.form.get("egar")
         obra = request.form.get("obra")
-        apa_estab = request.form.get("apa_estab")
         transp = request.form.get("transp")
         nif_transp = request.form.get("nif_transp")
         matricula = request.form.get("matricula")
         apa_transp = request.form.get("apa_transp")
         codLER = request.form.get("codLER")
-        residuo = request.form.get("residuo")
         ton = request.form.get("ton")
         dest_final = request.form.get("dest_final")
         dest = request.form.get("dest")
@@ -155,8 +161,6 @@ def insert():
             return apology("Faltou número da e-GAR")
         if not obra:
             return apology("Faltou designação da obra")
-        if not apa_estab:
-            return apology("Faltou APA do estabelecimento/obra")
         if not transp:
             return apology("Faltou designação do transportador")
         if not nif_transp:
@@ -165,8 +169,6 @@ def insert():
             return apology("Faltou a matrícula")
         if not codLER:
             return apology("Faltou código LER")
-        if not residuo:
-            return apology("Faltou designação do resíduo")
         if not ton:
             return apology("Faltou tonelagem")
         if not dest_final:
@@ -178,6 +180,18 @@ def insert():
         if not nif_dest:
             return apology("Faltou NIF do destinatário")
         
+        # Encontrar código apa a partir de contract_short
+
+        apa_estab_db = db.execute("SELECT apa_code FROM apa_code_contract\
+            WHERE contract_short = ?", obra)
+        apa_estab = apa_estab_db[0]
+        
+        # Encontrar designação do resíduo a partir de codLER
+        
+        residuo_db = db.execute("SELECT description FROM codler_description\
+            WHERE codLER = ?", codLER)
+        residuo = residuo_db[0]
+            
         # Parametro que pode faltar
         if not apa_transp:
             apa_transp = "--"
@@ -190,7 +204,8 @@ def insert():
         # Inserir todos os parâmetros da e-GAR na tabela wastemap
         db.execute(
             "INSERT INTO wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,empresa_id)\
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,session["user_id"])
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                data,egar,obra,apa_estab["apa_code"],transp,nif_transp,matricula,apa_transp,codLER,residuo["description"],ton,dest_final,dest,nif_dest,apa_dest,session["user_id"])
         
         return redirect('/insert')
     
@@ -260,7 +275,6 @@ def codler_description():
         return render_template("codler_description.html", all_codLER=all_codLER)
     
     else:
-        
         codLER = request.form.get("codLER")
         description = request.form.get("description")
         
@@ -270,14 +284,10 @@ def codler_description():
         # Confirm that the LER code entered is in one of the two allowed formats: XX XX XX or XXXXXX with X = digit
         if len(codLER) == 8 and codLER[0:2].isdigit() and codLER[2].isspace() and codLER[3:5].isdigit() and codLER[5].isspace() and codLER[6:].isdigit():
             codLER = f"{codLER[:2]}{codLER[3:5]}{codLER[6:]}"
-            print("")
-            print("Código LER: ", codLER)
-            print("")
+
         elif len(codLER) == 6 and codLER.isdigit():
             codLER = codLER
-            print("")
-            print("Código LER: ", codLER)
-            print("")
+
         else:
             return apology("O código LER inserido deve ter 6 dígitos no formato XX XX XX ou XXXXXX", 403)
              
@@ -300,7 +310,7 @@ def codler_description():
         all_codLER = db.execute("SELECT * FROM codler_description")
         
         return render_template("codler_description.html", all_codLER=all_codLER)
-        
+
 
 @app.route("/mirr", methods=["GET", "POST"])
 @login_required
@@ -311,9 +321,14 @@ def mirr():
     return apology("TODO")
 
 
+
+
+#Começar por definir um selector para os dest_final e capacitar o site de poder adicionar mais
+
 # Fazer os selects ao inserir e-GAR's - Ver situações idênticas
 # Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
 # Adicinar função de editar/eliminar nos Estabelecimentos e nos Códigos LER
 # Adicinar função de editar/eliminar na History
 # adicionar mais mensagens flash
+# Criar uma associação entre Armazenamento Preliminar na Sede e os resíduos que são recolhidos na sede. De forma a ligar e-GAR's
 # Fazer MIRR
