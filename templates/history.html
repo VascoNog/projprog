@@ -6,6 +6,19 @@ History
 
 {% block main %}
 
+<h3>Filtrar</h3>
+<form action="/history" method="post">
+    <div>
+        <select name="obra">
+            {% for obra in obras_mapeadas %}
+            <option value="{{ obra }}">{{ obra }}</option>
+            {% endfor %}
+            <option value="todas">Todas</option>
+        </select>
+    </div>
+    <button type="submit">Aplicar</button>
+</form>
+
 <h2>Mapa de Resíduos</h2>
 <table style="width:100%">
     <thead>

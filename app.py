@@ -134,10 +134,13 @@ def insert():
             ORDER BY contract_short ASC")
         codes_LER = db.execute("SELECT codLER FROM codler_description\
             ORDER BY codLER ASC")
+        operations = db.execute("SELECT * FROM operation_description\
+            ORDER BY operation DESC")
         return render_template(
             "insert.html",
             obras = [contract["contract_short"]for contract in contracts],
             todos_codLer = [codLER["codLER"] for codLER in codes_LER],
+            dest_finais = [operation["operation"] for operation in operations]
         )
         
     else:
@@ -184,13 +187,13 @@ def insert():
 
         apa_estab_db = db.execute("SELECT apa_code FROM apa_code_contract\
             WHERE contract_short = ?", obra)
-        apa_estab = apa_estab_db[0]
+        apa_estab = apa_estab_db[0]["apa_code"]
         
         # Encontrar designação do resíduo a partir de codLER
         
         residuo_db = db.execute("SELECT description FROM codler_description\
             WHERE codLER = ?", codLER)
-        residuo = residuo_db[0]
+        residuo = residuo_db[0]["description"]
             
         # Parametro que pode faltar
         if not apa_transp:
@@ -205,25 +208,43 @@ def insert():
         db.execute(
             "INSERT INTO wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,empresa_id)\
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                data,egar,obra,apa_estab["apa_code"],transp,nif_transp,matricula,apa_transp,codLER,residuo["description"],ton,dest_final,dest,nif_dest,apa_dest,session["user_id"])
+                data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,session["user_id"])
         
         return redirect('/insert')
     
-@app.route("/history")
+@app.route("/history", methods = ["GET", "POST"])
 @login_required
 def history(): 
     
-    # map = db.execute(
-    #     "SELECT data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
-    #         FROM wastemap WHERE wastemap.empresa_id = ? ORDER BY data ASC", session["user_id"])
-    
-    # Forma reduzida:
-    map = db.execute(
-        "SELECT data,egar,obra,transp,codLER,ton,dest_final,dest\
-            FROM wastemap WHERE wastemap.empresa_id = ?\
-                ORDER BY data ASC", session["user_id"])
-    
-    return render_template("history.html", map=map)
+    if request.method == "GET":
+        contracts = db.execute("SELECT contract_short FROM apa_code_contract\
+            ORDER BY contract_short ASC")
+        
+        return render_template("history.html",
+                               obras_mapeadas = [contract["contract_short"] for contract in contracts])
+
+    else:
+        obra = request.form.get("obra")
+
+        if obra == "todas":
+            map = db.execute(
+                "SELECT data,egar,obra,transp,codLER,ton,dest_final,dest\
+                    FROM wastemap WHERE wastemap.empresa_id = ?\
+                            ORDER BY data ASC",session["user_id"])
+        
+        else:
+            
+            # map = db.execute(
+            #     "SELECT data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
+            #         FROM wastemap WHERE wastemap.empresa_id = ? ORDER BY data ASC", session["user_id"])
+            
+            # Forma reduzida:
+            map = db.execute(
+                "SELECT data,egar,obra,transp,codLER,ton,dest_final,dest\
+                    FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
+                            ORDER BY data ASC",session["user_id"], obra)
+            
+        return render_template("history.html", map=map)
 
 @app.route("/establishments", methods=["GET", "POST"])
 @login_required
@@ -239,7 +260,6 @@ def establishments():
         apa_code = request.form.get("apa_code")
         nome_estab = request.form.get("nome_estab")
         nome_estab_curto = request.form.get("nome_estab_curto")
-        
         if not apa_code:
             return apology("Faltou o código APA", 403)
         if not nome_estab:
@@ -321,14 +341,11 @@ def mirr():
     return apology("TODO")
 
 
-
-
-#Começar por definir um selector para os dest_final e capacitar o site de poder adicionar mais
-
 # Fazer os selects ao inserir e-GAR's - Ver situações idênticas
 # Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
 # Adicinar função de editar/eliminar nos Estabelecimentos e nos Códigos LER
 # Adicinar função de editar/eliminar na History
+# No history, adicionar opção de filtrar por obra ou aparecer tudo
 # adicionar mais mensagens flash
 # Criar uma associação entre Armazenamento Preliminar na Sede e os resíduos que são recolhidos na sede. De forma a ligar e-GAR's
 # Fazer MIRR
