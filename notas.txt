@@ -27,7 +27,7 @@ CREATE TABLE wastemap (
         dest_final TEXT NOT NULL,
         dest TEXT NOT NULL,
         nif_dest INTEGER NOT NULL,
-        apa_dest TEXT NOT NULL
+        apa_dest TEXT NOT NULL,
         empresa_id INTEGER NOT NULL);
 
 

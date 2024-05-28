@@ -33,6 +33,16 @@ Estabelecimentos
             <td>{{ row.apa_code }}</td>
             <td>{{ row.contract_full }}</td>
             <td>{{ row.contract_short }}</td>
+            <td>
+                <form action="/delete_estab" method="post">
+                    <div>
+                        <input name="apa_code" type="hidden" value="{{ apa_code }}">
+                    </div>
+                    <div>
+                        <input class="delete_button" type="submit" value="Apagar">
+                    </div>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

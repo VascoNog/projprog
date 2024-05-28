@@ -136,8 +136,7 @@ def insert():
             ORDER BY codLER ASC")
         operations = db.execute("SELECT * FROM operation_description\
             ORDER BY operation DESC")
-        return render_template(
-            "insert.html",
+        return render_template("insert.html",
             obras = [contract["contract_short"]for contract in contracts],
             todos_codLer = [codLER["codLER"] for codLER in codes_LER],
             dest_finais = [operation["operation"] for operation in operations]
@@ -178,10 +177,10 @@ def insert():
             return apology("Faltou destino final (ex: R12)")
         if not dest:
             return apology("Faltou designação do destinatário")
-        if not apa_dest:
-            return apology("Faltou APA do destinatário")
         if not nif_dest:
             return apology("Faltou NIF do destinatário")
+        if not apa_dest:
+            return apology("Faltou APA do destinatário")
         
         # Encontrar código apa a partir de contract_short
 
@@ -216,40 +215,156 @@ def insert():
 @login_required
 def history(): 
     
+    contracts = db.execute("SELECT contract_short FROM apa_code_contract\
+        ORDER BY contract_short ASC")
+    
     if request.method == "GET":
-        contracts = db.execute("SELECT contract_short FROM apa_code_contract\
-            ORDER BY contract_short ASC")
-        
+
         return render_template("history.html",
                                obras_mapeadas = [contract["contract_short"] for contract in contracts])
 
     else:
+        
         obra = request.form.get("obra")
 
         if obra == "todas":
             map = db.execute(
-                "SELECT data,egar,obra,transp,codLER,ton,dest_final,dest\
-                    FROM wastemap WHERE wastemap.empresa_id = ?\
+                "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                    codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
+                        FROM wastemap WHERE wastemap.empresa_id = ?\
                             ORDER BY data ASC",session["user_id"])
         
         else:
-            
-            # map = db.execute(
-            #     "SELECT data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
-            #         FROM wastemap WHERE wastemap.empresa_id = ? ORDER BY data ASC", session["user_id"])
-            
-            # Forma reduzida:
             map = db.execute(
-                "SELECT data,egar,obra,transp,codLER,ton,dest_final,dest\
-                    FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
+                "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                    codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
+                        FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
                             ORDER BY data ASC",session["user_id"], obra)
+            
+        # All the "Select" options:
+        contracts = db.execute("SELECT contract_short FROM apa_code_contract\
+            ORDER BY contract_short ASC")
+        codes_LER = db.execute("SELECT codLER FROM codler_description\
+            ORDER BY codLER ASC")
+        operations = db.execute("SELECT * FROM operation_description\
+            ORDER BY operation DESC")
+            
+        return render_template("history.html", map=map,
+                               obras_mapeadas = [contract["contract_short"] for contract in contracts],
+                               obras = [contract["contract_short"]for contract in contracts],
+                               todos_codLer = [codLER["codLER"] for codLER in codes_LER],
+                               dest_finais = [operation["operation"] for operation in operations]
+                               )
+
+# APAGAR e-GARs do histórico/base de dados
+@app.route("/delete_egar", methods=["POST"])
+@login_required
+def delete():
+    row_id = request.form.get("row_id")
+    print("ROW ID DO DELETE (delete): ", row_id)
+    if row_id:
+        db.execute("DELETE FROM wastemap WHERE wastemap.id = ?\
+            AND wastemap.empresa_id = ?", row_id, session["user_id"])
+        
+    return redirect("/history")
+
+# EDITAR e-GARs do histórico/base de dados
+@app.route("/edit_egar", methods=["GET","POST"])
+@login_required
+def edit_egar():
+    
+    if request.method == "GET":
+        return render_template("edit_egar.html")
+        
+    else:      
+        row_id = request.form.get("row_id")
+        nova_data = request.form.get("nova_data")
+        nova_egar = request.form.get("nova_egar")
+        nova_obra = request.form.get("nova_obra")
+        novo_transp = request.form.get("novo_transp")
+        novo_nif_transp = request.form.get("novo_nif_transp")
+        nova_matricula = request.form.get("nova_matricula")
+        novo_apa_transp = request.form.get("novo_apa_transp")
+        novo_codLER = request.form.get("novo_codLER")
+        nova_ton = request.form.get("nova_ton")
+        novo_dest_final = request.form.get("novo_dest_final")
+        novo_dest = request.form.get("novo_dest")
+        novo_nif_dest = request.form.get("novo_nif_dest")
+        novo_apa_dest = request.form.get("novo_apa_dest")
+            
+        if not nova_data:
+            return apology("Faltou a data")
+        if not nova_egar:
+            return apology("Faltou número da e-GAR")
+        if not nova_obra:
+            return apology("Faltou designação da obra")
+        if not novo_transp:
+            return apology("Faltou designação do transportador")
+        if not novo_nif_transp:
+            return apology("Faltou NIF do transportador")
+        if not nova_matricula:
+            return apology("Faltou a matrícula")
+        if not novo_codLER:
+            return apology("Faltou código LER")
+        if not nova_ton:
+            return apology("Faltou tonelagem")
+        if not novo_dest_final:
+            return apology("Faltou destino final (ex: R12)")
+        if not novo_dest:
+            return apology("Faltou designação do destinatário")
+        if not novo_nif_dest:
+            return apology("Faltou NIF do destinatário")
+        if not novo_apa_dest:
+            return apology("Faltou APA do destinatário")
+            
+        # Encontrar novo código apa a partir de novo contract_short
+        apa_estab_db = db.execute("SELECT apa_code FROM apa_code_contract\
+            WHERE contract_short = ?", nova_obra)
+        apa_estab = apa_estab_db[0]["apa_code"]
+                
+        # Encontrar nova designação do resíduo a partir de novo codLER
+        residuo_db = db.execute("SELECT description FROM codler_description\
+            WHERE codLER = ?", novo_codLER)
+        residuo = residuo_db[0]["description"]
+                    
+        # Parametro que pode faltar
+        if not novo_apa_transp:
+            novo_apa_transp = "--"
+                
+        # Eliminar a atual:
+        if row_id:
+            db.execute("DELETE FROM wastemap WHERE wastemap.id = ?\
+                AND wastemap.empresa_id = ?", row_id, session["user_id"])
+                    
+        # Evitar duplicação de e-GAR's:
+        egar_in_wastemap = db.execute("SELECT * FROM wastemap WHERE wastemap.egar = ?", nova_egar)
+        if egar_in_wastemap:
+            return apology(f"Uma e-GAR com o número {nova_egar} já tinha sido submetida anteriormente, verifique no Mapa",403)    
+            
+            
+        # AVALIAR SE FAZ MAIS SENTIDO FAZER UPDATE AO INVÉS DE FAZER DELETE DA EGAR + NOVA INSERT
+            
+        # Inserir todos os parâmetros da e-GAR na tabela wastemap
+        db.execute("INSERT INTO wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,empresa_id)\
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            nova_data,nova_egar,nova_obra,apa_estab,novo_transp,novo_nif_transp,nova_matricula,novo_apa_transp,novo_codLER,residuo,nova_ton,novo_dest_final,
+            novo_dest, novo_nif_dest,novo_apa_dest,session["user_id"])
+                
+        # Mostrar o Mapa da obra (ou da nova obra) que sofreu edição:
+        map = db.execute(
+            "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
+                    FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
+                        ORDER BY data ASC",session["user_id"], nova_obra)
+
+        print("TIPO DE MAP: ", type(map[0]))
             
         return render_template("history.html", map=map)
 
 @app.route("/establishments", methods=["GET", "POST"])
 @login_required
 def establishments(): 
-
+    
     if request.method == "GET":
         all_estab = db.execute("SELECT apa_code,contract_full,contract_short \
             FROM apa_code_contract ORDER BY apa_code DESC")
@@ -341,11 +456,18 @@ def mirr():
     return apology("TODO")
 
 
-# Fazer os selects ao inserir e-GAR's - Ver situações idênticas
+
+# FAZER PARTE DO EDITAR NO HISTORY - CONCILIAR COM O INSERT.HTML
+
+
 # Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
 # Adicinar função de editar/eliminar nos Estabelecimentos e nos Códigos LER
 # Adicinar função de editar/eliminar na History
-# No history, adicionar opção de filtrar por obra ou aparecer tudo
 # adicionar mais mensagens flash
+# MIRR
+
+
+
+# Mais tarde:
 # Criar uma associação entre Armazenamento Preliminar na Sede e os resíduos que são recolhidos na sede. De forma a ligar e-GAR's
-# Fazer MIRR
+

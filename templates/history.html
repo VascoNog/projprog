@@ -10,34 +10,33 @@ History
 <form action="/history" method="post">
     <div>
         <select name="obra">
+            <option value="todas">Todas</option>
             {% for obra in obras_mapeadas %}
             <option value="{{ obra }}">{{ obra }}</option>
             {% endfor %}
-            <option value="todas">Todas</option>
         </select>
     </div>
     <button type="submit">Aplicar</button>
 </form>
 
-<h2>Mapa de Resíduos</h2>
 <table style="width:100%">
     <thead>
         <tr>
             <th>Data</th>
             <th>N.º e-GAR</th>
             <th>Obra</th>
-            <!-- <th>APA Estab.</th> -->
+            <th>APA Estab.</th>
             <th>Transp.</th>
-            <!-- <th>NIF Transp.</th> -->
-            <!-- <th>Matrícula</th> -->
-            <!-- <th>APA Transp.</th> -->
+            <th>NIF Transp.</th>
+            <th>Matrícula</th>
+            <th>APA Transp.</th>
             <th>Código LER</th>
-            <!-- <th>Resíduo</th> -->
+            <th>Resíduo</th>
             <th>Qtd(ton.)</th>
             <th>Destino Final</th>
             <th>Dest.</th>
-            <!-- <th>NIF Dest.</th>
-            <th>APA Dest.</th> -->
+            <th>NIF Dest.</th>
+            <th>APA Dest.</th>
         </tr>
     </thead>
     <tbody>
@@ -46,20 +45,108 @@ History
             <td>{{ row.data }}</td>
             <td>{{ row.egar }}</td>
             <td>{{ row.obra }}</td>
-            <!-- <td>{{ row.apa_estab }}</td> -->
+            <td>{{ row.apa_estab }}</td>
             <td>{{ row.transp }}</td>
-            <!-- <td>{{ row.nif_transp }}</td> -->
-            <!-- <td>{{ row.matricula }}</td> -->
-            <!-- <td>{{ row.apa_transp }}</td> -->
+            <td>{{ row.nif_transp }}</td>
+            <td>{{ row.matricula }}</td>
+            <td>{{ row.apa_transp }}</td>
             <td>{{ row.codLER }}</td>
-            <!-- <td>{{ row.residuo }}</td> -->
+            <td>{{ row.residuo }}</td>
             <td>{{ row.ton }}</td>
             <td>{{ row.dest_final }}</td>
             <td>{{ row.dest }}</td>
-            <!-- <td>{{ row.nif_dest }}</td>
-            <td>{{ row.apa_dest }}</td> -->
+            <td>{{ row.nif_dest }}</td>
+            <td>{{ row.apa_dest }}</td>
+            <td>
+                <form action="/delete_egar" method="post">
+                    <div>
+                        <input name="row_id" type="hidden" value="{{ row.id }}">
+                    </div>
+                    <div>
+                        <input class="delete_button" type="submit" value="Apagar">
+                    </div>
+                </form>
+            </td>
+            <td>
+                <button class="edit_button" onclick="showEditForm('{{ row.id }}')">Editar</button>
+                <form id="showForm{{row.id}}" action="/edit_egar" method="post" style="display: none;">
+                    <div>
+                        <input name="row_id" type="hidden" value="{{ row.id }}">
+                    </div>
+                    <div>
+                        <input name="nova_data" value="{{row.data}}" type="date">
+                    </div>
+                    <div>
+                        <input name="nova_egar" value="{{row.egar}}" type="text">
+                    </div>
+                    <div>
+                        {% if obras %}
+                        <select name="nova_obra">
+                            {% for obra in obras %}
+                            <option value="{{ obra }}" {% if obra==row.obra %}selected{% endif %}>{{ obra }}</option>
+                            {% endfor %}
+                        </select>
+                        {% else %}
+                        <p>Nenhuma obra disponível</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <input name="novo_transp" value="{{row.transp}}" type="text">
+                    </div>
+                    <div>
+                        <input name="novo_nif_transp" value="{{row.nif_transp}}" type="number" min="99999999"
+                            max="999999999">
+                    </div>
+                    <div>
+                        <input name="nova_matricula" value="{{row.matricula}}" type="text">
+                    </div>
+                    <div>
+                        <input name="novo_apa_transp" value="{{row.apa_transp}}" type="text">
+                    </div>
+                    <div>
+                        <select name="novo_codLER">
+                            {% for codLER in todos_codLer %}
+                            <option value="{{ codLER }}" {% if codLER==row.codLER %}selected{% endif %}>{{ codLER }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <input name="nova_ton" value="{{row.ton}}" type="number" min="0.001" step="0.001">
+                    </div>
+                    <div>
+                        <select name="novo_dest_final">
+                            {% for dest_final in dest_finais %}
+                            <option value="{{ dest_final }}" {% if dest_final==row.dest_final %}selected{% endif %}>{{
+                                dest_final }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <input name="novo_dest" value="{{row.dest}}" type="text">
+                    </div>
+                    <div>
+                        <input name="novo_nif_dest" value="{{row.nif_dest}}" type="number" min="99999999"
+                            max="999999999">
+                    </div>
+                    <div>
+                        <input name="novo_apa_dest" value="{{row.apa_dest}}" type="text">
+                    </div>
+                    <button type="submit">Aplicar alterações</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+    function showEditForm(rowId) {
+        var rowForEdition = 'showForm' + rowId;
+        var editingForm = document.getElementById(rowForEdition);
+        if (editingForm) {
+            editingForm.style.display = editingForm.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+</script>
 {% endblock %}
