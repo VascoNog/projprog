@@ -19,7 +19,10 @@ History
     <button type="submit">Aplicar</button>
 </form>
 
-<table style="width:100%">
+<button onclick="exportTableToExcel('table', 'Gestão Resíduos Produzidos 20XX_DD-MM-ANO')">Exportar para Excel</button>
+
+
+<table id="table" style="width:100%">
     <thead>
         <tr>
             <th>Data</th>
@@ -58,9 +61,12 @@ History
             <td>{{ row.nif_dest }}</td>
             <td>{{ row.apa_dest }}</td>
             <td>
-                <form action="/delete_egar" method="post">
+                <form action="/delete" method="post">
                     <div>
                         <input name="row_id" type="hidden" value="{{ row.id }}">
+                    </div>
+                    <div>
+                        <input name="obra" type="hidden" value="{{ row.obra }}">
                     </div>
                     <div>
                         <input class="delete_button" type="submit" value="Apagar">
@@ -149,4 +155,5 @@ History
         }
     }
 </script>
+
 {% endblock %}

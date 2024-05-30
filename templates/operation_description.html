@@ -1,38 +1,39 @@
 {% extends "layout.html" %}
 
 {% block title %}
-LER
+Operations
 {% endblock %}
 
 {% block main %}
-<h2>Inserir novo código LER</h2>
-<form action="/codler_description" method="post">
+<form action="/operation_description" method="post">
     <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="codLER" placeholder="LER (no formato XX XX XX ou XXXXXX)" type="text">
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="operation" placeholder="Operação de valorização/eliminação - Destino Final"
+            type="text">
     </div>
     <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="description" placeholder="Descrição LER" type="text">
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="description"
+            placeholder="Descrição da operação de valorização/eliminação " type="text">
     </div>
     <button type="submit">Gravar</button>
 </form>
 
-<h2>Códigos LER inseridos</h2>
+<h2>Operações de Valorização/Eliminação de Resíduos</h2>
 <table style="width:100%">
     <thead>
         <tr>
-            <th>Código LER</th>
+            <th>Operação</th>
             <th>Descrição</th>
         </tr>
     </thead>
     <tbody>
-        {% for row in all_codLER %}
+        {% for row in all_operations %}
         <tr>
-            <td>{{ row.codLER }}</td>
+            <td>{{ row.operation }}</td>
             <td>{{ row.description }}</td>
             <td>
                 <form action="/delete" method="post">
                     <div>
-                        <input name="codLER" type="hidden" value="{{ row.codLER }}">
+                        <input name="operation" type="hidden" value="{{ row.operation }}">
                     </div>
                     <div>
                         <input class="delete_button" type="submit" value="Apagar">
@@ -40,13 +41,13 @@ LER
                 </form>
             </td>
             <td>
-                <button class="edit_button" onclick="showEditForm('{{ row.codLER }}')">Editar</button>
-                <form id="showForm{{ row.codLER }}" action="/edit_codler_description" method="post" style="display: none;">
+                <button class="edit_button" onclick="showEditForm('{{ row.operation }}')">Editar</button>
+                <form id="showForm{{ row.operation }}" action="/edit_operation_description" method="post" style="display: none;">
                     <div>
-                        <input name="antigo_codLER" value="{{ row.codLER }}" type = "hidden">
+                        <input name="antiga_operação" value="{{ row.operation }}" type = "hidden">
                     </div>
                     <div>
-                        <input name="novo_codLER" value="{{ row.codLER }}" type = "text">
+                        <input name="nova_operação" value="{{ row.operation }}" type = "text">
                     </div>
                     <div>
                         <input name="nova_descrição" value="{{ row.description }}" type = "text">
@@ -60,8 +61,8 @@ LER
 </table>
 
 <script>
-    function showEditForm(codLER) {
-        var rowForEdition = 'showForm' + codLER;
+    function showEditForm(operation) {
+        var rowForEdition = 'showForm' + operation;
         var editingForm = document.getElementById(rowForEdition);
         if (editingForm) {
             editingForm.style.display = editingForm.style.display === 'none' ? 'block' : 'none';

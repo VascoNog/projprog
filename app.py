@@ -257,17 +257,44 @@ def history():
                                )
 
 # APAGAR e-GARs do histórico/base de dados
-@app.route("/delete_egar", methods=["POST"])
+@app.route("/delete", methods=["POST"])
 @login_required
 def delete():
     row_id = request.form.get("row_id")
-    print("ROW ID DO DELETE (delete): ", row_id)
+    apa_code = request.form.get("apa_code")
+    codLER = request.form.get("codLER")
+    operation = request.form.get("operation")
+    
     if row_id:
         db.execute("DELETE FROM wastemap WHERE wastemap.id = ?\
             AND wastemap.empresa_id = ?", row_id, session["user_id"])
         
-    return redirect("/history")
-
+        obra = request.form.get("obra")
+        map_exists = db.execute("SELECT * FROM wastemap WHERE obra = ?", obra)
+        if map_exists:
+            map = db.execute(
+                "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                    codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
+                        FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
+                            ORDER BY data ASC",session["user_id"], obra)
+            return render_template("history.html", map=map)
+        
+        else:
+            return redirect("/history")
+        
+    if apa_code:
+        db.execute("DELETE FROM apa_code_contract WHERE apa_code = ?", apa_code)
+        return redirect("/establishments")
+    
+    if codLER:
+        db.execute("DELETE FROM codler_description WHERE codLER = ?", codLER)
+        return redirect("/codler_description")
+    
+    if operation:
+        db.execute("DELETE FROM operation_description WHERE operation = ?", operation)
+        return redirect("/operation_description")
+    
+    
 # EDITAR e-GARs do histórico/base de dados
 @app.route("/edit_egar", methods=["GET","POST"])
 @login_required
@@ -399,6 +426,43 @@ def establishments():
             FROM apa_code_contract ORDER BY apa_code DESC")
         
         return render_template("establishments.html", all_estab=all_estab)
+
+# EDITAR estabelecimentos criados
+@app.route("/edit_establishments", methods=["GET","POST"])
+@login_required
+def edit_establishments():
+
+    if request.method == "GET":
+        return render_template("edit_establishments.html")
+    
+    else:
+        antigo_apa = request.form.get("antigo_apa")
+        novo_apa = request.form.get("novo_apa")
+        nova_design_longa = request.form.get("nova_design_longa")
+        antiga_design_curta = request.form.get("antiga_design_curta")
+        nova_design_curta = request.form.get("nova_design_curta")
+        
+        if not novo_apa:
+            return apology("Faltou APA")
+        if not nova_design_longa:
+            return apology("Faltou nome longo do estabelecimento/obra")
+        if not nova_design_curta:
+            return apology("Faltou nome curto do estabelecimento/obra")
+        
+        # Realizar as alterações no estabelecimento/obra
+        db.execute("DELETE FROM apa_code_contract WHERE apa_code = ?", antigo_apa)
+        db.execute ("INSERT INTO apa_code_contract (apa_code,contract_full,contract_short)\
+            VALUES(?,?,?)", novo_apa, nova_design_longa, nova_design_curta)
+        
+        # Show all establishments (after changes)
+        all_estab = db.execute("SELECT apa_code,contract_full,contract_short \
+            FROM apa_code_contract ORDER BY apa_code DESC")
+        
+        # Atualizar wastemap: designação curta da obra e apa do estabelecimento
+        db.execute("UPDATE wastemap SET obra = ?, apa_estab = ?\
+            WHERE obra = ? AND apa_estab = ?",nova_design_curta,novo_apa,antiga_design_curta,antigo_apa)
+
+        return render_template("establishments.html", all_estab=all_estab)
         
 @app.route("/codler_description", methods=["GET", "POST"])
 @login_required
@@ -446,6 +510,115 @@ def codler_description():
         
         return render_template("codler_description.html", all_codLER=all_codLER)
 
+@app.route("/edit_codler_description", methods=["GET", "POST"])
+@login_required
+def edit_codler_description():
+    
+    if request.method == "GET":
+        return render_template("edit_codler_description.html")
+    
+    else:
+        antigo_codLER = request.form.get("antigo_codLER")
+        novo_codLER = request.form.get("novo_codLER")
+        nova_descrição = request.form.get("nova_descrição")
+        
+        if not novo_codLER :
+            return apology("Faltou código LER", 403)
+    
+        # Confirm that the LER code entered is in one of the two allowed formats: XX XX XX or XXXXXX with X = digit
+        if len(novo_codLER) == 8 and novo_codLER[0:2].isdigit() and novo_codLER[2].isspace() and novo_codLER[3:5].isdigit() and novo_codLER[5].isspace() and novo_codLER[6:].isdigit():
+            novo_codLER = f"{novo_codLER[:2]}{novo_codLER[3:5]}{novo_codLER[6:]}"
+
+        elif len(novo_codLER) == 6 and novo_codLER.isdigit():
+            novo_codLER = novo_codLER
+
+        else:
+            return apology("O código LER inserido deve ter 6 dígitos no formato XX XX XX ou XXXXXX", 403)
+        
+        if not nova_descrição:
+            return apology("Faltou descrição do código LER", 403)
+        
+        # Realizar as alterações na codLER_description table
+        db.execute("DELETE FROM codler_description WHERE codler = ?", antigo_codLER)
+        db.execute ("INSERT INTO codler_description (codLER,description)\
+            VALUES(?,?)", format_codLER(novo_codLER), nova_descrição)
+        
+        # Show all LER and descriptions (after changes)
+        all_codLER = db.execute("SELECT * FROM codler_description\
+            ORDER BY codLER DESC")
+        
+        # Atualizar wastemap: código LER
+        db.execute("UPDATE wastemap SET codLER = ?,residuo = ?\
+            WHERE codLER = ?", format_codLER(novo_codLER),nova_descrição, antigo_codLER)
+        
+        return render_template("codler_description.html", all_codLER=all_codLER)
+    
+
+@app.route("/operation_description", methods=["GET", "POST"])
+@login_required
+def operation_description():
+
+    if request.method == "GET":
+        all_operations = db.execute("SELECT * FROM operation_description")
+        
+        return render_template("operation_description.html", all_operations=all_operations)
+    
+    else:
+        operation = request.form.get("operation")
+        description = request.form.get("description")
+        
+        if not operation:
+            return apology("Faltou operação de valorização/eliminação", 403)
+         
+        if not description:
+            return apology("Faltou descrição da operação de valorização/eliminação", 403)
+        
+        # Insert new operation and description. Ensure non-duplication
+        try:
+            db.execute("INSERT INTO operation_description (operation, description)\
+                VALUES(?,?)", operation, description)
+        except:
+            # table operation_description: operation TEXT NOT NULL UNIQUE,
+            flash("A operação de valorização/eliminação que tentou inserir já se encontra no sistema!")
+            return redirect("/operation_description")
+
+        # Show all operations
+        all_operations = db.execute("SELECT * FROM operation_description")
+        
+        return render_template("operation_description.html", all_operations=all_operations)
+    
+@app.route("/edit_operation_description", methods=["GET", "POST"])
+@login_required
+def edit_operation_description():
+
+    if request.method == "GET":
+        return render_template("edit_operation_description.html")
+    
+    else:
+        antiga_operação = request.form.get("antiga_operação")
+        nova_operação = request.form.get("nova_operação")
+        nova_descrição = request.form.get("nova_descrição")
+        
+        if not nova_operação :
+            return apology("Faltou operação de valorização/eliminação", 403)
+        if not nova_descrição:
+            return apology("Faltou descrição da operação de valorização/eliminação", 403)
+        
+        # Realizar as alterações na operação de valorização/eliminação
+        db.execute("DELETE FROM operation_description WHERE operation = ?", antiga_operação)
+        db.execute ("INSERT INTO operation_description (operation,description)\
+            VALUES(?,?)", nova_operação, nova_descrição)
+        
+        # Show all operations (after changes)
+        all_operations = db.execute("SELECT * FROM operation_description\
+            ORDER BY operation DESC")
+        
+        # Atualizar wastemap: operação
+        db.execute("UPDATE wastemap SET dest_final = ?\
+            WHERE dest_final = ?", nova_operação, antiga_operação)
+
+        return render_template("operation_description.html", all_operations=all_operations)
+    
 
 @app.route("/mirr", methods=["GET", "POST"])
 @login_required
@@ -455,11 +628,7 @@ def mirr():
     
     return apology("TODO")
 
-
-
-# FAZER PARTE DO EDITAR NO HISTORY - CONCILIAR COM O INSERT.HTML
-
-
+# Avaliar inserir parametro "id" nas tabelas da base de dados que nao possuem.
 # Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
 # Adicinar função de editar/eliminar nos Estabelecimentos e nos Códigos LER
 # Adicinar função de editar/eliminar na History

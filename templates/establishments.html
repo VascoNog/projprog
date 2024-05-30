@@ -7,13 +7,16 @@ Estabelecimentos
 {% block main %}
 <form action="/establishments" method="post">
     <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_code" placeholder="Código APA" type="text">
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_code" placeholder="Código APA"
+            type="text">
     </div>
     <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nome_estab" placeholder="Nome completo do estabelecimento/obra" type="text">
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nome_estab"
+            placeholder="Nome completo do estabelecimento/obra" type="text">
     </div>
     <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nome_estab_curto" placeholder="Nome curto estabelecimento/obra" type="text">
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nome_estab_curto"
+            placeholder="Nome curto estabelecimento/obra" type="text">
     </div>
     <button type="submit">Gravar</button>
 </form>
@@ -34,17 +37,49 @@ Estabelecimentos
             <td>{{ row.contract_full }}</td>
             <td>{{ row.contract_short }}</td>
             <td>
-                <form action="/delete_estab" method="post">
+                <form action="/delete" method="post">
                     <div>
-                        <input name="apa_code" type="hidden" value="{{ apa_code }}">
+                        <input name="apa_code" type="hidden" value="{{ row.apa_code }}">
                     </div>
                     <div>
                         <input class="delete_button" type="submit" value="Apagar">
                     </div>
                 </form>
             </td>
+            <td>
+                <button class="edit_button" onclick="showEditForm('{{ row.apa_code }}')">Editar</button>
+                <form id="showForm{{ row.apa_code }}" action="/edit_establishments" method="post" style="display: none;">
+                    <div>
+                        <input name="antigo_apa" type="hidden" value="{{ row.apa_code }}">
+                    </div>
+                    <div>
+                        <input name="antiga_design_curta" type="hidden" value="{{ row.contract_short }}">
+                    </div>
+                    <div>
+                        <input name="novo_apa" value="{{ row.apa_code }}" type = "text">
+                    </div>
+                    <div>
+                        <input name="nova_design_longa" value="{{ row.contract_full }}" type = "text">
+                    </div>
+                    <div>
+                        <input name="nova_design_curta" value="{{ row.contract_short }}" type = "text">
+                    </div>
+                    <button type="submit">Aplicar alterações</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<script>
+    function showEditForm(apa_code) {
+        var rowForEdition = 'showForm' + apa_code;
+        var editingForm = document.getElementById(rowForEdition);
+        if (editingForm) {
+            editingForm.style.display = editingForm.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+</script>
+
 {% endblock %}
