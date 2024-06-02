@@ -52,6 +52,14 @@ def login_required(f):
 
 def format_codLER(value):
     """Format code "LER" """
-    # format “value” to the format: NN NN NN (N = Number)
-    return f"{value[:2]} {value[2:4]} {value[4:]}"
+    # Confirm that the LER code entered is in one of the two allowed formats: XX XX XX or XXXXXX with X = digit
+    if len(value) == 6 and value.isdigit():
+        return f"{value[:2]} {value[2:4]} {value[4:]}"
     
+    if len(value) == 8 and value[0:2].isdigit() and value[2].isspace() and value[3:5].isdigit() and value[5].isspace() and value[6:].isdigit():
+        return value
+    
+    return None
+    
+    
+        

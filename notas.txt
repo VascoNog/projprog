@@ -1,8 +1,3 @@
-C:\sqlite\sqlite3.exe -header database.db "SELECT * FROM wastemap;" > wastemap.txt
-C:\sqlite\sqlite3.exe database.db "SELECT * FROM users" > users.txt
-C:\sqlite\sqlite3.exe database.db "SELECT * FROM apa_code_contract" > apa_code_contract.txt                     
-C:\sqlite\sqlite3.exe database.db "SELECT * FROM apa_code_contract_test" > apa_code_contract.txt
-
 Copiei desta maneira o ficheiro csv para a tabela apa_code_contract:
 em WLS:
 sqlite3 -cmd ".mode csv" -cmd ".import codler_description.csv codler_description" -cmd ".exit" database.db

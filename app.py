@@ -480,14 +480,9 @@ def codler_description():
         if not codLER:
             return apology("Faltou código LER", 403)
         
-        # Confirm that the LER code entered is in one of the two allowed formats: XX XX XX or XXXXXX with X = digit
-        if len(codLER) == 8 and codLER[0:2].isdigit() and codLER[2].isspace() and codLER[3:5].isdigit() and codLER[5].isspace() and codLER[6:].isdigit():
-            codLER = f"{codLER[:2]}{codLER[3:5]}{codLER[6:]}"
-
-        elif len(codLER) == 6 and codLER.isdigit():
-            codLER = codLER
-
-        else:
+        codLER = format_codLER(codLER)
+        print("CODLER LINHA 484: ", codLER)
+        if codLER == None:
             return apology("O código LER inserido deve ter 6 dígitos no formato XX XX XX ou XXXXXX", 403)
              
         if not description:
@@ -496,7 +491,7 @@ def codler_description():
         # Insert new code "LER" and description. Ensure non-duplication of code "LER"
         try:
             db.execute("INSERT INTO codler_description (codLER, description)\
-                VALUES(?,?)", format_codLER(codLER), description)
+                VALUES(?,?)", codLER, description)
         except:
             # table codler_description: codLER TEXT NOT NULL UNIQUE
             flash("O código LER que tentou inserir já se encontra no sistema!")
@@ -524,15 +519,9 @@ def edit_codler_description():
         
         if not novo_codLER :
             return apology("Faltou código LER", 403)
-    
-        # Confirm that the LER code entered is in one of the two allowed formats: XX XX XX or XXXXXX with X = digit
-        if len(novo_codLER) == 8 and novo_codLER[0:2].isdigit() and novo_codLER[2].isspace() and novo_codLER[3:5].isdigit() and novo_codLER[5].isspace() and novo_codLER[6:].isdigit():
-            novo_codLER = f"{novo_codLER[:2]}{novo_codLER[3:5]}{novo_codLER[6:]}"
-
-        elif len(novo_codLER) == 6 and novo_codLER.isdigit():
-            novo_codLER = novo_codLER
-
-        else:
+        
+        novo_codLER = format_codLER(novo_codLER)
+        if novo_codLER == None:
             return apology("O código LER inserido deve ter 6 dígitos no formato XX XX XX ou XXXXXX", 403)
         
         if not nova_descrição:
@@ -541,7 +530,7 @@ def edit_codler_description():
         # Realizar as alterações na codLER_description table
         db.execute("DELETE FROM codler_description WHERE codler = ?", antigo_codLER)
         db.execute ("INSERT INTO codler_description (codLER,description)\
-            VALUES(?,?)", format_codLER(novo_codLER), nova_descrição)
+            VALUES(?,?)", novo_codLER, nova_descrição)
         
         # Show all LER and descriptions (after changes)
         all_codLER = db.execute("SELECT * FROM codler_description\
@@ -549,7 +538,7 @@ def edit_codler_description():
         
         # Atualizar wastemap: código LER
         db.execute("UPDATE wastemap SET codLER = ?,residuo = ?\
-            WHERE codLER = ?", format_codLER(novo_codLER),nova_descrição, antigo_codLER)
+            WHERE codLER = ?",novo_codLER, nova_descrição, antigo_codLER)
         
         return render_template("codler_description.html", all_codLER=all_codLER)
     
