@@ -6,6 +6,8 @@ History
 
 {% block main %}
 
+<button id="exportTableButton" onClick = "exportTableToExcel()"> Exportar para Excel</button>
+
 <h3>Filtrar</h3>
 <form action="/history" method="post">
     <div>
@@ -19,10 +21,8 @@ History
     <button type="submit">Aplicar</button>
 </form>
 
-<button onclick="exportTableToExcel('table', 'Gestão Resíduos Produzidos 20XX_DD-MM-ANO')">Exportar para Excel</button>
 
-
-<table id="table" style="width:100%">
+<table id="tableId" style="width:100%">
     <thead>
         <tr>
             <th>Data</th>
@@ -40,6 +40,7 @@ History
             <th>Dest.</th>
             <th>NIF Dest.</th>
             <th>APA Dest.</th>
+            <th>Produtor</th> 
         </tr>
     </thead>
     <tbody>
@@ -60,6 +61,7 @@ History
             <td>{{ row.dest }}</td>
             <td>{{ row.nif_dest }}</td>
             <td>{{ row.apa_dest }}</td>
+            <td>{{ row.produtor }}</td>
             <td>
                 <form action="/delete" method="post">
                     <div>
@@ -138,6 +140,9 @@ History
                     <div>
                         <input name="novo_apa_dest" value="{{row.apa_dest}}" type="text">
                     </div>
+                    <div>
+                        <input name="novo_produtor" value="{{row.produtor}}" type="text">
+                    </div>
                     <button type="submit">Aplicar alterações</button>
                 </form>
             </td>
@@ -154,6 +159,14 @@ History
             editingForm.style.display = editingForm.style.display === 'none' ? 'block' : 'none';
         }
     }
+
+    function exportTableToExcel(){
+        const tableToExport = document.getElementById('tableId')
+        const workbook = XLSX.utils.table_to_book(tableToExport);
+        XLSX.writeFile(workbook,"GestResProduzidos_dd-mm-aaaa.xlsx");
+
+    }
+
 </script>
 
 {% endblock %}

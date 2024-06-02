@@ -156,6 +156,7 @@ def insert():
         dest = request.form.get("dest")
         nif_dest = request.form.get("nif_dest")
         apa_dest = request.form.get("apa_dest")
+        produtor = request.form.get("produtor")
         
         if not data:
             return apology("Faltou a data")
@@ -181,6 +182,8 @@ def insert():
             return apology("Faltou NIF do destinatário")
         if not apa_dest:
             return apology("Faltou APA do destinatário")
+        if not produtor:
+            return apology("Faltou produtor do resíduo")
         
         # Encontrar código apa a partir de contract_short
 
@@ -205,9 +208,9 @@ def insert():
     
         # Inserir todos os parâmetros da e-GAR na tabela wastemap
         db.execute(
-            "INSERT INTO wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,empresa_id)\
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,session["user_id"])
+            "INSERT INTO wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,empresa_id)\
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,session["user_id"])
         
         return redirect('/insert')
     
@@ -230,14 +233,14 @@ def history():
         if obra == "todas":
             map = db.execute(
                 "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
-                    codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
+                    codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
                         FROM wastemap WHERE wastemap.empresa_id = ?\
                             ORDER BY data ASC",session["user_id"])
         
         else:
             map = db.execute(
                 "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
-                    codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
+                    codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
                         FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
                             ORDER BY data ASC",session["user_id"], obra)
             
@@ -318,6 +321,7 @@ def edit_egar():
         novo_dest = request.form.get("novo_dest")
         novo_nif_dest = request.form.get("novo_nif_dest")
         novo_apa_dest = request.form.get("novo_apa_dest")
+        novo_produtor = request.form.get("novo_produtor")
             
         if not nova_data:
             return apology("Faltou a data")
@@ -343,6 +347,8 @@ def edit_egar():
             return apology("Faltou NIF do destinatário")
         if not novo_apa_dest:
             return apology("Faltou APA do destinatário")
+        if not novo_produtor:
+            return apology("Faltou produtor do resíduo")
             
         # Encontrar novo código apa a partir de novo contract_short
         apa_estab_db = db.execute("SELECT apa_code FROM apa_code_contract\
@@ -372,10 +378,10 @@ def edit_egar():
         # AVALIAR SE FAZ MAIS SENTIDO FAZER UPDATE AO INVÉS DE FAZER DELETE DA EGAR + NOVA INSERT
             
         # Inserir todos os parâmetros da e-GAR na tabela wastemap
-        db.execute("INSERT INTO wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,empresa_id)\
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        db.execute("INSERT INTO wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,empresa_id)\
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             nova_data,nova_egar,nova_obra,apa_estab,novo_transp,novo_nif_transp,nova_matricula,novo_apa_transp,novo_codLER,residuo,nova_ton,novo_dest_final,
-            novo_dest, novo_nif_dest,novo_apa_dest,session["user_id"])
+            novo_dest, novo_nif_dest,novo_apa_dest,novo_produtor,session["user_id"])
                 
         # Mostrar o Mapa da obra (ou da nova obra) que sofreu edição:
         map = db.execute(
@@ -384,8 +390,6 @@ def edit_egar():
                     FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
                         ORDER BY data ASC",session["user_id"], nova_obra)
 
-        print("TIPO DE MAP: ", type(map[0]))
-            
         return render_template("history.html", map=map)
 
 @app.route("/establishments", methods=["GET", "POST"])
@@ -619,12 +623,8 @@ def mirr():
 
 # Avaliar inserir parametro "id" nas tabelas da base de dados que nao possuem.
 # Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
-# Adicinar função de editar/eliminar nos Estabelecimentos e nos Códigos LER
-# Adicinar função de editar/eliminar na History
 # adicionar mais mensagens flash
 # MIRR
-
-
 
 # Mais tarde:
 # Criar uma associação entre Armazenamento Preliminar na Sede e os resíduos que são recolhidos na sede. De forma a ligar e-GAR's

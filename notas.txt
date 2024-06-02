@@ -23,7 +23,10 @@ CREATE TABLE wastemap (
         dest TEXT NOT NULL,
         nif_dest INTEGER NOT NULL,
         apa_dest TEXT NOT NULL,
-        empresa_id INTEGER NOT NULL);
+        empresa_id INTEGER NOT NULL,
+        produtor TEXT NOT NULL;)
+
+=====> produtor: Sim (Produtor é a Tecnorém) ou Não (Produtor é outra empresa que não a Tecnorém)
 
 
     CREATE TABLE apa_code_contract(

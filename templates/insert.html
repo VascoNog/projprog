@@ -55,18 +55,23 @@ Insert
             <option value="{{dest_final}}">{{dest_final}}</option>
             {% endfor %}
         </select>
-        <div>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="dest"
-                placeholder="nome destinatário" type="text">
-        </div>
-        <div>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nif_dest"
-                placeholder="NIF destinatário" type="number" min="99999999" max="999999999">
-        </div>
-        <div>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_dest"
-                placeholder="APA destinatário" type="text">
-        </div>
-        <button type="submit">Submeter</button>
+    </div>    
+    <div>
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="dest"
+            placeholder="nome destinatário" type="text">
+    </div>
+    <div>
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nif_dest"
+            placeholder="NIF destinatário" type="number" min="99999999" max="999999999">
+    </div>
+    <div>
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_dest"
+            placeholder="APA destinatário" type="text">
+    </div>
+    <div>
+        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="produtor"
+        placeholder="Produtor do resíduo" value ="Produtor Tecnorém "type="text">
+    </div> 
+    <button type="submit">Submeter</button>
 </form>
 {% endblock %}
