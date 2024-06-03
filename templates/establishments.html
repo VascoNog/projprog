@@ -42,6 +42,12 @@ Estabelecimentos
                         <input name="apa_code" type="hidden" value="{{ row.apa_code }}">
                     </div>
                     <div>
+                        <input name="c_full" type="hidden" value="{{ row.contract_full }}">
+                    </div>
+                    <div>
+                        <input name="c_short" type="hidden" value="{{ row.contract_short }}">
+                    </div>
+                    <div>
                         <input class="delete_button" type="submit" value="Apagar">
                     </div>
                 </form>
@@ -51,6 +57,9 @@ Estabelecimentos
                 <form id="showForm{{ row.apa_code }}" action="/edit_establishments" method="post" style="display: none;">
                     <div>
                         <input name="antigo_apa" type="hidden" value="{{ row.apa_code }}">
+                    </div>
+                    <div>
+                        <input name="antiga_design_longa" type="hidden" value="{{ row.contract_full }}">
                     </div>
                     <div>
                         <input name="antiga_design_curta" type="hidden" value="{{ row.contract_short }}">

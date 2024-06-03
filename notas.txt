@@ -30,11 +30,11 @@ CREATE TABLE wastemap (
 
 
     CREATE TABLE apa_code_contract(
-        apa_code TEXT NOT NULL UNIQUE,
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        apa_code TEXT NOT NULL,
         contract_full TEXT NOT NULL,
         contract_short TEXT NOT NULL
     );
-
 
     CREATE TABLE codler_description (
         codLER TEXT NOT NULL UNIQUE,

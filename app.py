@@ -259,15 +259,26 @@ def history():
                                dest_finais = [operation["operation"] for operation in operations]
                                )
 
-# APAGAR e-GARs do histórico/base de dados
+# APAGAR diversas informações - relativo a vários html's
 @app.route("/delete", methods=["POST"])
 @login_required
 def delete():
+    
+    # from history.html:
     row_id = request.form.get("row_id")
+    
+    # from establishments.html:
     apa_code = request.form.get("apa_code")
+    c_full = request.form.get("c_full")
+    c_short = request.form.get("c_short")
+    
+    # from codler_description.html:
     codLER = request.form.get("codLER")
+    
+    # from operation_description.html:
     operation = request.form.get("operation")
     
+    # history.html:
     if row_id:
         db.execute("DELETE FROM wastemap WHERE wastemap.id = ?\
             AND wastemap.empresa_id = ?", row_id, session["user_id"])
@@ -285,14 +296,19 @@ def delete():
         else:
             return redirect("/history")
         
-    if apa_code:
-        db.execute("DELETE FROM apa_code_contract WHERE apa_code = ?", apa_code)
+    # establishments.html:
+    if apa_code and c_full and c_short:
+        db.execute("DELETE FROM apa_code_contract WHERE apa_code = ?\
+            AND contract_full = ?\
+                AND contract_short = ?", apa_code, c_full, c_short)
         return redirect("/establishments")
-    
+
+    # codler_description.html:
     if codLER:
         db.execute("DELETE FROM codler_description WHERE codLER = ?", codLER)
         return redirect("/codler_description")
     
+    # operation_description.html:
     if operation:
         db.execute("DELETE FROM operation_description WHERE operation = ?", operation)
         return redirect("/operation_description")
@@ -413,18 +429,24 @@ def establishments():
         if not nome_estab_curto:
             return apology("Faltou nome curto do estabelecimento/obra", 403)
         
-        # Insert new establishment or contract. Ensure non-duplication of APA code
-        try:
-            db.execute("INSERT INTO apa_code_contract (apa_code, contract_full,contract_short)\
-                VALUES(?,?,?)", apa_code,nome_estab,nome_estab_curto)
-        except:
-            # table apa_code_contract: apa_code TEXT NOT NULL UNIQUE
-            flash("O código APA que tentou inserir já se encontra no sistema!")
+        # Insert new establishment or contract. Ensure non-duplication of APA code, except for "GT"
+        if apa_code != "GT" and apa_code[:3] != "APA":
+            flash("Deve escrever um código APA que comece com 'APA' ou escrever 'GT' (referente a 'Geral Tecnorém')")
             return redirect("/establishments")
-    
-        # INSERT INTO table_name (column_a, column_b)
-        # VALUES ("value_a", "value_b");
+        
+        all_apa_codes = db.execute("SELECT apa_code FROM apa_code_contract")
+        print("ALL APA CODES: ", all_apa_codes)
+        if apa_code[:3] == "APA":
+            for ac in all_apa_codes:
+                if ac["apa_code"] == apa_code:
+                    flash("Já existe um estabelecimento criado com esse código APA inserido")
+                    return redirect("/establishments")
                 
+        
+        #Insert a new establishment in database:
+        db.execute("INSERT INTO apa_code_contract (apa_code, contract_full,contract_short)\
+                VALUES(?,?,?)", apa_code,nome_estab,nome_estab_curto)
+        
         # Show all establishments
         all_estab = db.execute("SELECT apa_code,contract_full,contract_short \
             FROM apa_code_contract ORDER BY apa_code DESC")
@@ -442,6 +464,7 @@ def edit_establishments():
     else:
         antigo_apa = request.form.get("antigo_apa")
         novo_apa = request.form.get("novo_apa")
+        antiga_design_longa = request.form.get("antiga_design_longa")
         nova_design_longa = request.form.get("nova_design_longa")
         antiga_design_curta = request.form.get("antiga_design_curta")
         nova_design_curta = request.form.get("nova_design_curta")
@@ -453,8 +476,25 @@ def edit_establishments():
         if not nova_design_curta:
             return apology("Faltou nome curto do estabelecimento/obra")
         
+        # Insert new establishment or contract. Ensure non-duplication of APA code, except for "GT"
+        if novo_apa != "GT" and novo_apa[:3] != "APA":
+            flash("Deve escrever um novo código APA que comece com 'APA' ou escrever 'GT' (referente a 'Geral Tecnorém')")
+            return redirect("/establishments")
+        
+        # Verificar se o novo APA não se encontra já inserido na base de dados:
+        if novo_apa != antigo_apa:
+            all_apa_codes = db.execute("SELECT apa_code FROM apa_code_contract")
+            print("ALL APA CODES EDIT ESTABLISHMENTS: ", all_apa_codes)
+            if novo_apa[:3] == "APA":
+                for ac in all_apa_codes:
+                    if ac["apa_code"] == novo_apa:
+                        flash("Já existe um estabelecimento criado com esse código APA inserido")
+                        return redirect("/establishments")
+            
         # Realizar as alterações no estabelecimento/obra
-        db.execute("DELETE FROM apa_code_contract WHERE apa_code = ?", antigo_apa)
+        db.execute("DELETE FROM apa_code_contract WHERE apa_code = ?\
+            AND contract_full = ?\
+                AND contract_short = ?", antigo_apa, antiga_design_longa, antiga_design_curta)
         db.execute ("INSERT INTO apa_code_contract (apa_code,contract_full,contract_short)\
             VALUES(?,?,?)", novo_apa, nova_design_longa, nova_design_curta)
         
@@ -617,10 +657,69 @@ def edit_operation_description():
 @login_required
 def mirr():
     
-    # Fazer tabelas do MIRR
+    options = db.execute("SELECT apa_code, contract_short FROM apa_code_contract ORDER BY contract_short ASC")
+    mirr_options = []
     
-    return apology("TODO")
+    print("OPTIONS LINHA 623: ", options)
 
+    for row in options:
+        if row["apa_code"][:2] != "GT":
+            # Criar uma lista com nome curto da obra + APA estabelecimento
+            mirr_options.append(f"{row['contract_short']}-{row['apa_code']}")
+            print("MIRR OPTIONS LISTA: ",mirr_options)
+        
+    # Todos os estabelecimentos e todas as obras com APA "GERAL TEC"
+    
+    if request.method == "GET":
+
+        return render_template("mirr.html", mirr_options = mirr_options)
+    
+    else:
+        estab_chosen = request.form.get("estab_chosen")
+        
+        if estab_chosen == "GT":
+            all_GT_contracts = db.execute("SELECT contract_short FROM apa_code_contract\
+                JOIN wastemap ON apa_code_contract.contract_short = wastemap.obra\
+                    WHERE apa_code_contract.apa_code = ?\
+                        AND wastemap.empresa_id = ?", estab_chosen, session["user_id"])
+            if not all_GT_contracts:
+                return apology("Não existem e-GAR's mapeadas com APA geral da Tecnorém")
+        else:
+            return apology("TODO")
+    
+                                          
+    # CREATE TABLE apa_code_contract(
+    #     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    #     apa_code TEXT NOT NULL,
+    #     contract_full TEXT NOT NULL,
+    #     contract_short TEXT NOT NULL
+    # );
+        
+    #     CREATE TABLE wastemap (
+    #     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    #     data DATETIME NOT NULL,
+    #     egar TEXT NOT NULL UNIQUE,
+    #     obra TEXT NOT NULL,
+    #     apa_estab TEXT NOT NULL,
+    #     transp TEXT NOT NULL,
+    #     nif_transp INTEGER NOT NULL,
+    #     matricula TEXT NOT NULL,
+    #     apa_transp TEXT NOT NULL,
+    #     codLER TEXT NOT NULL,
+    #     residuo TEXT NOT NULL,
+    #     ton REAL NOT NULL,
+    #     dest_final TEXT NOT NULL,
+    #     dest TEXT NOT NULL,
+    #     nif_dest INTEGER NOT NULL,
+    #     apa_dest TEXT NOT NULL,
+    #     empresa_id INTEGER NOT NULL,
+    #     produtor TEXT NOT NULL;)
+
+            
+                    
+        # else:
+        return apology("TODO")
+            
 # Avaliar inserir parametro "id" nas tabelas da base de dados que nao possuem.
 # Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
 # adicionar mais mensagens flash
