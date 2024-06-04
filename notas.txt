@@ -2,6 +2,18 @@ Copiei desta maneira o ficheiro csv para a tabela apa_code_contract:
 em WLS:
 sqlite3 -cmd ".mode csv" -cmd ".import codler_description.csv codler_description" -cmd ".exit" database.db
 sqlite3 -cmd ".mode csv" -cmd ".import operation_description.csv operation_description" -cmd ".exit" database.db
+sqlite3 -cmd ".mode csv" -cmd ".import testmirr.csv wastemap" -cmd ".exit" database.db
+
+Exemplo, criar um ficheiro (usar "touch")
+touch testmirr.csv
+
+Exemplo, exportar para um ficheiro txt:
+sqlite> .output wastemaptest.txt
+sqlite> SELECT * FROM wastemap;
+sqlite> .output stdout
+sqlite> .quit
+
+
 
 
 Criação da tabela wastemap:
@@ -23,8 +35,8 @@ CREATE TABLE wastemap (
         dest TEXT NOT NULL,
         nif_dest INTEGER NOT NULL,
         apa_dest TEXT NOT NULL,
-        empresa_id INTEGER NOT NULL,
-        produtor TEXT NOT NULL;)
+        empresa_id INTEGER NOT NULL, 
+        produtor TEXT NOT NULL DEFAULT 'Produtor Tecnorém');
 
 =====> produtor: Sim (Produtor é a Tecnorém) ou Não (Produtor é outra empresa que não a Tecnorém)
 

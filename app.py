@@ -657,17 +657,10 @@ def edit_operation_description():
 @login_required
 def mirr():
     
-    options = db.execute("SELECT apa_code, contract_short FROM apa_code_contract ORDER BY contract_short ASC")
-    mirr_options = []
-    
-    print("OPTIONS LINHA 623: ", options)
+    mirr_options = db.execute("SELECT contract_short FROM apa_code_contract\
+        WHERE NOT apa_code = 'GT'\
+            ORDER BY contract_short ASC")
 
-    for row in options:
-        if row["apa_code"][:2] != "GT":
-            # Criar uma lista com nome curto da obra + APA estabelecimento
-            mirr_options.append(f"{row['contract_short']}-{row['apa_code']}")
-            print("MIRR OPTIONS LISTA: ",mirr_options)
-        
     # Todos os estabelecimentos e todas as obras com APA "GERAL TEC"
     
     if request.method == "GET":
@@ -676,50 +669,40 @@ def mirr():
     
     else:
         estab_chosen = request.form.get("estab_chosen")
-        
-        if estab_chosen == "GT":
-            all_GT_contracts = db.execute("SELECT contract_short FROM apa_code_contract\
-                JOIN wastemap ON apa_code_contract.contract_short = wastemap.obra\
-                    WHERE apa_code_contract.apa_code = ?\
-                        AND wastemap.empresa_id = ?", estab_chosen, session["user_id"])
-            if not all_GT_contracts:
-                return apology("Não existem e-GAR's mapeadas com APA geral da Tecnorém")
-        else:
-            return apology("TODO")
     
-                                          
-    # CREATE TABLE apa_code_contract(
-    #     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    #     apa_code TEXT NOT NULL,
-    #     contract_full TEXT NOT NULL,
-    #     contract_short TEXT NOT NULL
-    # );
+        mirr = db.execute("SELECT codLER,dest,nif_dest,apa_dest,dest_final,\
+            SUM(ton) AS subtotal,transp,nif_transp,apa_transp FROM wastemap\
+                WHERE obra = ? AND NOT dest_final = 'AP' AND empresa_id = ?\
+                    GROUP BY codLER,dest_final,transp", estab_chosen, session["user_id"])
+               
+        total_each_LER = db.execute("SELECT codLER,SUM(ton) AS total FROM wastemap\
+            WHERE obra = ? AND NOT dest_final = 'AP' AND empresa_id = ?\
+                    GROUP BY codLER", estab_chosen, session["user_id"])
         
-    #     CREATE TABLE wastemap (
-    #     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    #     data DATETIME NOT NULL,
-    #     egar TEXT NOT NULL UNIQUE,
-    #     obra TEXT NOT NULL,
-    #     apa_estab TEXT NOT NULL,
-    #     transp TEXT NOT NULL,
-    #     nif_transp INTEGER NOT NULL,
-    #     matricula TEXT NOT NULL,
-    #     apa_transp TEXT NOT NULL,
-    #     codLER TEXT NOT NULL,
-    #     residuo TEXT NOT NULL,
-    #     ton REAL NOT NULL,
-    #     dest_final TEXT NOT NULL,
-    #     dest TEXT NOT NULL,
-    #     nif_dest INTEGER NOT NULL,
-    #     apa_dest TEXT NOT NULL,
-    #     empresa_id INTEGER NOT NULL,
-    #     produtor TEXT NOT NULL;)
-
-            
+        if not mirr or not total_each_LER:
+            flash("Não existem registos para a opção selecionada")
+            return redirect("/mirr")
+        
+        # Updating MIRR:
+        index = 0
+        for egar in mirr:
+            for each_total in total_each_LER:
+                print("EGAR: ", egar)
+                print("EACH TOTAL: ", each_total)
+                if each_total["codLER"] == egar["codLER"]:
+                    # Updating MIRR table:
+                    mirr[index]["total"] = each_total["total"]
+                    index = index + 1
+                    print("MIRR: ",mirr)
+                    print("INDEX: ", index)
+        
+        print("MIRR after adding total: ", mirr)
+        
+        return render_template("mirr.html", mirr=mirr)
+           
                     
-        # else:
-        return apology("TODO")
-            
+
+
 # Avaliar inserir parametro "id" nas tabelas da base de dados que nao possuem.
 # Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
 # adicionar mais mensagens flash
