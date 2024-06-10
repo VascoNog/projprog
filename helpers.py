@@ -60,6 +60,18 @@ def format_codLER(value):
         return value
     
     return None
+
+def format_ton(value):
+    """Format Ton value"""
+    return f"{value:,.3f}"
+
+# def get_year(value):
+#     """Format hour"""
+#     return f"{value: %Y}"
+
+
+
+
     
     
         

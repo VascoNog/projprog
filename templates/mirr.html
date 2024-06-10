@@ -18,6 +18,13 @@ MIRR
             {% endfor %}
         </select>
     </div>
+    <div>
+        <select name="year">
+            {% for year in years %}
+            <option value="{{ year.year }}">{{ year.year }}</option>
+            {% endfor %}
+        </select>
+    </div>
     <button type="submit">Gerar MIRR</button>
 </form>
 
@@ -29,12 +36,12 @@ MIRR
         </tr>
         <tr>
             <th>LER</th>
-            <th>Qtd. p/Resíduo</th>
+            <th>Qtd. p/Resíduo (Ton.)</th>
             <th>Destinatário</th>
             <th>NIF Dest.</th>
             <th>APA Dest.</th>
             <th>Operação</th>
-            <th>Qtd. p/empresa</th>
+            <th>Qtd. p/empresa (Ton.)</th>
             <th>Transportador</th>
             <th>NIF Transp.</th>
             <th>APA Transp.</th>
@@ -44,12 +51,12 @@ MIRR
         {% for row in mirr %}
         <tr>
             <td>{{ row.codLER }}</td>
-            <td>{{ row.total }}</td>
+            <td>{{ row.total | format_ton }}</td>
             <td>{{ row.dest }}</td>
             <td>{{ row.nif_dest }}</td>
             <td>{{ row.apa_dest }}</td>
             <td>{{ row.dest_final }}</td>
-            <td>{{ row.subtotal }}</td>
+            <td>{{ row.subtotal | format_ton }}</td>
             <td>{{ row.transp }}</td>
             <td>{{ row.nif_transp }}</td>
             <td>{{ row.apa_transp }}</td>

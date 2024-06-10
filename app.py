@@ -7,13 +7,14 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
 
-from helpers import apology, login_required, format_codLER
+from helpers import apology, login_required, format_codLER, format_ton
 
 # Configure application
 app = Flask(__name__)
 
 # APAGAR SE ACABAR POR NÃO UTILIZAR EM JINJA
 app.jinja_env.filters["format_codLER"] = format_codLER
+app.jinja_env.filters["format_ton"] = format_ton
 
 
 # Configure session to use filesystem (instead of signed cookies)
@@ -657,56 +658,221 @@ def edit_operation_description():
 @login_required
 def mirr():
     
-    mirr_options = db.execute("SELECT contract_short FROM apa_code_contract\
-        WHERE NOT apa_code = 'GT'\
-            ORDER BY contract_short ASC")
-
+    mirr_options = db.execute("""
+    SELECT 
+        contract_short 
+    FROM 
+        apa_code_contract
+    WHERE 
+        apa_code != 'GT'
+    ORDER BY 
+        contract_short ASC""")
+    
+    years = db.execute("""
+    SELECT DISTINCT
+        strftime('%Y', data) AS year
+    FROM
+        wastemap
+    WHERE 
+        dest_final != 'AP' AND empresa_id = ? AND strftime('%Y', data) != 'None'
+    ORDER BY
+        strftime('%Y', data) DESC
+    """, session["user_id"])
+    
+    print("TODOS OS ANOS POSSÍVEIS: ", years)
+    
+    
     # Todos os estabelecimentos e todas as obras com APA "GERAL TEC"
     
     if request.method == "GET":
 
-        return render_template("mirr.html", mirr_options = mirr_options)
+        return render_template("mirr.html", mirr_options = mirr_options, years=years)
     
     else:
         estab_chosen = request.form.get("estab_chosen")
-    
-        mirr = db.execute("SELECT codLER,dest,nif_dest,apa_dest,dest_final,\
-            SUM(ton) AS subtotal,transp,nif_transp,apa_transp FROM wastemap\
-                WHERE obra = ? AND NOT dest_final = 'AP' AND empresa_id = ?\
-                    GROUP BY codLER,dest_final,transp", estab_chosen, session["user_id"])
-               
-        total_each_LER = db.execute("SELECT codLER,SUM(ton) AS total FROM wastemap\
-            WHERE obra = ? AND NOT dest_final = 'AP' AND empresa_id = ?\
-                    GROUP BY codLER", estab_chosen, session["user_id"])
+        year = request.form.get("year")
         
-        if not mirr or not total_each_LER:
-            flash("Não existem registos para a opção selecionada")
-            return redirect("/mirr")
+        print("ESTAB CHOSEN: ", estab_chosen)
+        print("YEAR: ", year)
         
-        # Updating MIRR:
-        index = 0
-        for egar in mirr:
-            for each_total in total_each_LER:
-                print("EGAR: ", egar)
-                print("EACH TOTAL: ", each_total)
-                if each_total["codLER"] == egar["codLER"]:
-                    # Updating MIRR table:
-                    mirr[index]["total"] = each_total["total"]
-                    index = index + 1
-                    print("MIRR: ",mirr)
-                    print("INDEX: ", index)
-        
-        print("MIRR after adding total: ", mirr)
-        
-        return render_template("mirr.html", mirr=mirr)
-           
-                    
+        # Fazendo recurso a Common Table Expression (CTE)
+        # Fontes: 
+        # https://www.sqlitetutorial.net/sqlite-cte/
+        # https://learnsql.com/blog/cte-vs-subquery/
 
+        
+        # WITH my_cte AS (
+        # SELECT a,b,c
+        # FROM T1
+        # )
+        # SELECT a,c
+        # FROM my_cte
+        # WHERE ....
+    
+    if estab_chosen != 'GT': 
+        mirr = db.execute("""
+        WITH total_each_LER AS (
+            SELECT
+                wastemap.codLER,
+                SUM(ton) AS total
+            FROM
+                wastemap
+            WHERE 
+                obra = ? AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?)
+            GROUP BY
+                codLER
+            )
+            SELECT
+                wastemap.codLER,
+                total_each_LER.total,
+                dest,
+                nif_dest,
+                apa_dest,
+                dest_final,
+                SUM(ton) AS subtotal,
+                transp,
+                nif_transp,
+                apa_transp
+            FROM
+                wastemap
+            JOIN
+                total_each_LER ON wastemap.codLER = total_each_LER.codLER
+            WHERE
+                obra = ? AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?)
+            GROUP BY
+                wastemap.codLER,
+                wastemap.dest_final,
+                wastemap.transp
+            """, estab_chosen, session["user_id"],year, year, estab_chosen, session["user_id"], year, year)
+        
+        print("MIRR NÃO GT: ", mirr)
+        
+    # Para os MIRR, APA do estabelecimento GT - Geral Tecnorém
+    else:
+        mirr = db.execute("""
+        WITH total_each_LER AS (
+            SELECT
+                wastemap.codLER,
+                SUM(ton) AS total
+            FROM
+                wastemap
+            WHERE 
+                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?)
+            GROUP BY
+                codLER
+            )
+            SELECT
+                wastemap.codLER,
+                total_each_LER.total,
+                dest,
+                nif_dest,
+                apa_dest,
+                dest_final,
+                SUM(ton) AS subtotal,
+                transp,
+                nif_transp,
+                apa_transp
+            FROM
+                wastemap
+            JOIN
+                total_each_LER ON wastemap.codLER = total_each_LER.codLER
+            WHERE
+                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?)
+            GROUP BY
+                wastemap.codLER,
+                wastemap.dest_final,
+                wastemap.transp
+            """, session["user_id"],year, year, session["user_id"], year, year)
+           
+    
+        # total_each_LER = db.execute("SELECT codLER,SUM(ton) AS total FROM wastemap\
+        #     WHERE obra = ? AND dest_final != 'AP' AND empresa_id = ?\
+        #             GROUP BY codLER", estab_chosen, session["user_id"])
+        
+        # Usando Subquery:
+        
+        # mirr = db.execute("""
+        # SELECT
+        #     w1.codLER,
+        #     w1.dest,
+        #     w1.nif_dest,
+        #     w1.apa_dest,
+        #     w1.dest_final,
+        #     SUM(w1.ton) AS subtotal,
+        #     w1.transp,
+        #     w1.nif_transp,
+        #     w1.apa_transp,
+        #     w2.total
+        # FROM
+        #     wastemap AS w1
+        # JOIN (
+        #     SELECT
+        #         codLER,
+        #         SUM(ton) AS total
+        #     FROM
+        #         wastemap
+        #     WHERE
+        #         obra = ? AND NOT dest_final = 'AP' AND empresa_id = ?
+        #     GROUP BY
+        #         codLER
+        # ) AS w2 ON w2.codLER = w1.codLER
+        # WHERE
+        #     w1.obra = ? AND NOT w1.dest_final = 'AP' AND w1.empresa_id = ?
+        # GROUP BY
+        #     w1.codLER, w1.dest_final, w1.transp
+        # """, estab_chosen, session["user_id"], estab_chosen, session["user_id"])
+
+
+        # print("Mirr (Alias): ", mirr)
+        
+         
+        #  Usando duas queries:
+        
+        
+        # mirr = db.execute("SELECT codLER,dest,nif_dest,apa_dest,dest_final,\
+        #     SUM(ton) AS subtotal,transp,nif_transp,apa_transp FROM wastemap\
+        #         WHERE obra = ? AND dest_final != 'AP' AND empresa_id = ?\
+        #             GROUP BY codLER,dest_final,transp", estab_chosen, session["user_id"])
+               
+        # total_each_LER = db.execute("SELECT codLER,SUM(ton) AS total FROM wastemap\
+        #     WHERE obra = ? AND dest_final != 'AP' AND empresa_id = ?\
+        #             GROUP BY codLER", estab_chosen, session["user_id"])
+        
+    if not mirr:
+        flash("Não existem registos para as opções selecionadas")
+        return redirect("/mirr")
+        
+        # # Updating MIRR:
+        # index = 0
+        # for egar in mirr:
+        #     for each_total in total_each_LER:
+        #         print("EGAR: ", egar)
+        #         print("EACH TOTAL: ", each_total)
+        #         if each_total["codLER"] == egar["codLER"]:
+        #             # Updating MIRR table:
+        #             mirr[index]["total"] = each_total["total"]
+        #             index = index + 1
+        #             print("MIRR: ",mirr)
+        # #             print("INDEX: ", index)
+        
+    print("MIRR: ", mirr)
+        
+    return render_template("mirr.html", mirr=mirr, mirr_options = mirr_options, years=years)
+           
 
 # Avaliar inserir parametro "id" nas tabelas da base de dados que nao possuem.
 # Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
 # adicionar mais mensagens flash
 # MIRR
+
+# Adicionar no MIRR "Produtor Tecnorém" - talvez escolher num SELECT
+
+# QUERY DO MIRR: 
+# NAS LINHAS obra = ? AND NOT dest_final == 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?)
+# Colocar depois apenas strftime('%Y', data) = ?, o website da-nos a data no formato aaaa-mm-dd, mas para já temos também no formato dd-mm-aaaa devido ao "upload" feito a partir do original
+
+
+# Formatar todas as queries no código. Mudar os NOT para !=
 
 # Mais tarde:
 # Criar uma associação entre Armazenamento Preliminar na Sede e os resíduos que são recolhidos na sede. De forma a ligar e-GAR's
