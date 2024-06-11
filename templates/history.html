@@ -88,9 +88,9 @@ History
                         <input name="nova_egar" value="{{row.egar}}" type="text">
                     </div>
                     <div>
-                        {% if obras %}
+                        {% if obras_mapeadas %}
                         <select name="nova_obra">
-                            {% for obra in obras %}
+                            {% for obra in obras_mapeadas %}
                             <option value="{{ obra }}" {% if obra==row.obra %}selected{% endif %}>{{ obra }}</option>
                             {% endfor %}
                         </select>
@@ -125,8 +125,7 @@ History
                     <div>
                         <select name="novo_dest_final">
                             {% for dest_final in dest_finais %}
-                            <option value="{{ dest_final }}" {% if dest_final==row.dest_final %}selected{% endif %}>{{
-                                dest_final }}</option>
+                            <option value="{{ dest_final }}" {% if dest_final==row.dest_final %}selected{% endif %}>{{ dest_final }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -141,7 +140,12 @@ History
                         <input name="novo_apa_dest" value="{{row.apa_dest}}" type="text">
                     </div>
                     <div>
-                        <input name="novo_produtor" value="{{row.produtor}}" type="text">
+                        <select name="novo_produtor">
+                            <option value="Outro">Outro (Empresa fora do Grupo Tecnorém) </option>
+                            {% for produtor in produtores %}
+                            <option value="{{produtor}}" {%if produtor == row.produtor %}selected{% endif %}> {{ produtor }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <button type="submit">Aplicar alterações</button>
                 </form>

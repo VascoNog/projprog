@@ -137,10 +137,12 @@ def insert():
             ORDER BY codLER ASC")
         operations = db.execute("SELECT * FROM operation_description\
             ORDER BY operation DESC")
+        producers = db.execute("SELECT username FROM users")
         return render_template("insert.html",
             obras = [contract["contract_short"]for contract in contracts],
             todos_codLer = [codLER["codLER"] for codLER in codes_LER],
-            dest_finais = [operation["operation"] for operation in operations]
+            dest_finais = [operation["operation"] for operation in operations],
+            produtores = [prod["username"] for prod in producers]
         )
         
     else:
@@ -252,12 +254,13 @@ def history():
             ORDER BY codLER ASC")
         operations = db.execute("SELECT * FROM operation_description\
             ORDER BY operation DESC")
+        producers = db.execute("SELECT username FROM users")
             
         return render_template("history.html", map=map,
                                obras_mapeadas = [contract["contract_short"] for contract in contracts],
-                               obras = [contract["contract_short"]for contract in contracts],
                                todos_codLer = [codLER["codLER"] for codLER in codes_LER],
-                               dest_finais = [operation["operation"] for operation in operations]
+                               dest_finais = [operation["operation"] for operation in operations],
+                               produtores = [prod["username"] for prod in producers]
                                )
 
 # APAGAR diversas informações - relativo a vários html's
@@ -403,11 +406,26 @@ def edit_egar():
         # Mostrar o Mapa da obra (ou da nova obra) que sofreu edição:
         map = db.execute(
             "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
-                codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
+                codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
                     FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
                         ORDER BY data ASC",session["user_id"], nova_obra)
-
-        return render_template("history.html", map=map)
+        
+        # Preparar formulário de edição sempre após a primeira e todas as seguintes edições
+        contracts = db.execute("SELECT contract_short FROM apa_code_contract\
+            ORDER BY contract_short ASC")
+        codes_LER = db.execute("SELECT codLER FROM codler_description\
+            ORDER BY codLER ASC")
+        operations = db.execute("SELECT * FROM operation_description\
+            ORDER BY operation DESC")
+        producers = db.execute("SELECT username FROM users")
+        
+        return render_template("history.html",
+            map = map,
+            obras_mapeadas = [contract["contract_short"]for contract in contracts],
+            todos_codLer = [codLER["codLER"] for codLER in codes_LER],
+            dest_finais = [operation["operation"] for operation in operations],
+            produtores = [prod["username"] for prod in producers]
+        )
 
 @app.route("/establishments", methods=["GET", "POST"])
 @login_required
@@ -695,19 +713,18 @@ def mirr():
         print("ESTAB CHOSEN: ", estab_chosen)
         print("YEAR: ", year)
         
+        # Face ao user que se encontra logado, determinar o username do produtor:
+        produtor = db.execute ("SELECT username FROM users\
+            WHERE users.id = ?", session["user_id"])
+        produtor = produtor[0]["username"]
+        print("PRODUTOR: ", produtor)
+            
+        
         # Fazendo recurso a Common Table Expression (CTE)
         # Fontes: 
         # https://www.sqlitetutorial.net/sqlite-cte/
         # https://learnsql.com/blog/cte-vs-subquery/
 
-        
-        # WITH my_cte AS (
-        # SELECT a,b,c
-        # FROM T1
-        # )
-        # SELECT a,c
-        # FROM my_cte
-        # WHERE ....
     
     if estab_chosen != 'GT': 
         mirr = db.execute("""
@@ -718,7 +735,7 @@ def mirr():
             FROM
                 wastemap
             WHERE 
-                obra = ? AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?)
+                obra = ? AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?) AND (produtor = ? OR produtor = 'Produtor Tecnorém')
             GROUP BY
                 codLER
             )
@@ -738,12 +755,12 @@ def mirr():
             JOIN
                 total_each_LER ON wastemap.codLER = total_each_LER.codLER
             WHERE
-                obra = ? AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?)
+                obra = ? AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?) AND (produtor = ? OR produtor = 'Produtor Tecnorém')
             GROUP BY
                 wastemap.codLER,
                 wastemap.dest_final,
                 wastemap.transp
-            """, estab_chosen, session["user_id"],year, year, estab_chosen, session["user_id"], year, year)
+            """, estab_chosen, session["user_id"],year, year,produtor, estab_chosen, session["user_id"], year, year,produtor)
         
         print("MIRR NÃO GT: ", mirr)
         
@@ -757,7 +774,7 @@ def mirr():
             FROM
                 wastemap
             WHERE 
-                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?)
+                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?) AND (produtor = ? OR produtor = 'Produtor Tecnorém')
             GROUP BY
                 codLER
             )
@@ -777,89 +794,28 @@ def mirr():
             JOIN
                 total_each_LER ON wastemap.codLER = total_each_LER.codLER
             WHERE
-                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?)
+                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?) AND (produtor = ? OR produtor = 'Produtor Tecnorém')
             GROUP BY
                 wastemap.codLER,
                 wastemap.dest_final,
                 wastemap.transp
-            """, session["user_id"],year, year, session["user_id"], year, year)
+            """, session["user_id"],year, year,produtor, session["user_id"], year, year,produtor)
            
-    
-        # total_each_LER = db.execute("SELECT codLER,SUM(ton) AS total FROM wastemap\
-        #     WHERE obra = ? AND dest_final != 'AP' AND empresa_id = ?\
-        #             GROUP BY codLER", estab_chosen, session["user_id"])
-        
-        # Usando Subquery:
-        
-        # mirr = db.execute("""
-        # SELECT
-        #     w1.codLER,
-        #     w1.dest,
-        #     w1.nif_dest,
-        #     w1.apa_dest,
-        #     w1.dest_final,
-        #     SUM(w1.ton) AS subtotal,
-        #     w1.transp,
-        #     w1.nif_transp,
-        #     w1.apa_transp,
-        #     w2.total
-        # FROM
-        #     wastemap AS w1
-        # JOIN (
-        #     SELECT
-        #         codLER,
-        #         SUM(ton) AS total
-        #     FROM
-        #         wastemap
-        #     WHERE
-        #         obra = ? AND NOT dest_final = 'AP' AND empresa_id = ?
-        #     GROUP BY
-        #         codLER
-        # ) AS w2 ON w2.codLER = w1.codLER
-        # WHERE
-        #     w1.obra = ? AND NOT w1.dest_final = 'AP' AND w1.empresa_id = ?
-        # GROUP BY
-        #     w1.codLER, w1.dest_final, w1.transp
-        # """, estab_chosen, session["user_id"], estab_chosen, session["user_id"])
-
-
-        # print("Mirr (Alias): ", mirr)
-        
-         
-        #  Usando duas queries:
-        
-        
-        # mirr = db.execute("SELECT codLER,dest,nif_dest,apa_dest,dest_final,\
-        #     SUM(ton) AS subtotal,transp,nif_transp,apa_transp FROM wastemap\
-        #         WHERE obra = ? AND dest_final != 'AP' AND empresa_id = ?\
-        #             GROUP BY codLER,dest_final,transp", estab_chosen, session["user_id"])
-               
-        # total_each_LER = db.execute("SELECT codLER,SUM(ton) AS total FROM wastemap\
-        #     WHERE obra = ? AND dest_final != 'AP' AND empresa_id = ?\
-        #             GROUP BY codLER", estab_chosen, session["user_id"])
         
     if not mirr:
         flash("Não existem registos para as opções selecionadas")
         return redirect("/mirr")
         
-        # # Updating MIRR:
-        # index = 0
-        # for egar in mirr:
-        #     for each_total in total_each_LER:
-        #         print("EGAR: ", egar)
-        #         print("EACH TOTAL: ", each_total)
-        #         if each_total["codLER"] == egar["codLER"]:
-        #             # Updating MIRR table:
-        #             mirr[index]["total"] = each_total["total"]
-        #             index = index + 1
-        #             print("MIRR: ",mirr)
-        # #             print("INDEX: ", index)
         
     print("MIRR: ", mirr)
         
     return render_template("mirr.html", mirr=mirr, mirr_options = mirr_options, years=years)
-           
 
+
+
+
+
+# A FAZER:
 # Avaliar inserir parametro "id" nas tabelas da base de dados que nao possuem.
 # Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
 # adicionar mais mensagens flash
@@ -870,10 +826,12 @@ def mirr():
 # QUERY DO MIRR: 
 # NAS LINHAS obra = ? AND NOT dest_final == 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?)
 # Colocar depois apenas strftime('%Y', data) = ?, o website da-nos a data no formato aaaa-mm-dd, mas para já temos também no formato dd-mm-aaaa devido ao "upload" feito a partir do original
-
+# o mesmo para (produtor = ? OR produtor = 'Produtor Tecnorém') - só interessa produtor = ?
 
 # Formatar todas as queries no código. Mudar os NOT para !=
 
 # Mais tarde:
 # Criar uma associação entre Armazenamento Preliminar na Sede e os resíduos que são recolhidos na sede. De forma a ligar e-GAR's
+# Melhorar escolha de outro produtor que não a tecnorém (ou outra empresa do Grupo) de forma a que o user possa escolher outro qualquer. Por exemplo: Jofilipes, Casa Gallo
+
 
