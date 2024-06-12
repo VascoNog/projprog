@@ -18,6 +18,8 @@ sqlite> .quit
 
 Criação da tabela wastemap:
 
+RuntimeError: unsupported value: {'obra': '2212 - Lar Idosos Bairro', 'empresa_id': 1, 'ano': '2023', 'produtor': 'Tecnorem'}
+
 CREATE TABLE wastemap (
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         data DATETIME NOT NULL,

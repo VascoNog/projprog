@@ -710,15 +710,15 @@ def mirr():
         estab_chosen = request.form.get("estab_chosen")
         year = request.form.get("year")
         
-        print("ESTAB CHOSEN: ", estab_chosen)
-        print("YEAR: ", year)
+        print("TYPE OF ESTAB CHOSEN: ", type(estab_chosen))
+        print("TYPE OF YEAR: ", type(year))
         
         # Face ao user que se encontra logado, determinar o username do produtor:
-        produtor = db.execute ("SELECT username FROM users\
+        producer = db.execute ("SELECT username FROM users\
             WHERE users.id = ?", session["user_id"])
-        produtor = produtor[0]["username"]
-        print("PRODUTOR: ", produtor)
-            
+        producer = producer[0]["username"]
+        print("TYPE OF PRODUCER: ", type(producer))
+    
         
         # Fazendo recurso a Common Table Expression (CTE)
         # Fontes: 
@@ -735,7 +735,7 @@ def mirr():
             FROM
                 wastemap
             WHERE 
-                obra = ? AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?) AND (produtor = ? OR produtor = 'Produtor Tecnorém')
+                obra = :obra AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano) AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
             GROUP BY
                 codLER
             )
@@ -755,12 +755,12 @@ def mirr():
             JOIN
                 total_each_LER ON wastemap.codLER = total_each_LER.codLER
             WHERE
-                obra = ? AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?) AND (produtor = ? OR produtor = 'Produtor Tecnorém')
+                obra = :obra AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano) AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
             GROUP BY
                 wastemap.codLER,
                 wastemap.dest_final,
                 wastemap.transp
-            """, estab_chosen, session["user_id"],year, year,produtor, estab_chosen, session["user_id"], year, year,produtor)
+            """, obra=estab_chosen, empresa_id=session["user_id"],ano=year,produtor=producer)
         
         print("MIRR NÃO GT: ", mirr)
         
@@ -774,7 +774,7 @@ def mirr():
             FROM
                 wastemap
             WHERE 
-                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?) AND (produtor = ? OR produtor = 'Produtor Tecnorém')
+                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano) AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
             GROUP BY
                 codLER
             )
@@ -794,13 +794,12 @@ def mirr():
             JOIN
                 total_each_LER ON wastemap.codLER = total_each_LER.codLER
             WHERE
-                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?) AND (produtor = ? OR produtor = 'Produtor Tecnorém')
+                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano) AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
             GROUP BY
                 wastemap.codLER,
                 wastemap.dest_final,
                 wastemap.transp
-            """, session["user_id"],year, year,produtor, session["user_id"], year, year,produtor)
-           
+            """, empresa_id=session["user_id"],ano=year,produtor=producer)
         
     if not mirr:
         flash("Não existem registos para as opções selecionadas")
@@ -835,3 +834,4 @@ def mirr():
 # Melhorar escolha de outro produtor que não a tecnorém (ou outra empresa do Grupo) de forma a que o user possa escolher outro qualquer. Por exemplo: Jofilipes, Casa Gallo
 
 
+# No final devo alterar a tabela wastemap na parte do produtor de "Produtor Tecnorém" para "Tecnorém apenas"
