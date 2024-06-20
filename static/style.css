@@ -1,0 +1,6 @@
+/* Estilo quando o mouse passa por cima */
+nav .navbar-brand:hover {
+    color: rgb(25, 130, 205); /* Texto verde */
+    /* font-weight: bold; /* Texto em negrito */
+    /* font-size: 25px; Aumento do tamanho da fonte */
+}

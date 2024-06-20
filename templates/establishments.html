@@ -5,23 +5,28 @@ Estabelecimentos
 {% endblock %}
 
 {% block main %}
+
+<br></br>
+<p class="display-6 text-center"> INSERIR ESTABELECIMENTO APA</p>
+<br></br>
 <form action="/establishments" method="post">
     <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="apa_code" placeholder="Código APA"
+        <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="apa_code" placeholder="Código APA"
             type="text">
     </div>
     <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nome_estab"
-            placeholder="Nome completo do estabelecimento/obra" type="text">
+        <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="nome_estab"
+            placeholder="Designação completa" type="text">
     </div>
     <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="nome_estab_curto"
-            placeholder="Nome curto estabelecimento/obra" type="text">
+        <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="nome_estab_curto"
+            placeholder="Designação curta" type="text">
     </div>
-    <button type="submit">Gravar</button>
+    <br></br>
+    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Gravar</button>
 </form>
+<br></br>
 
-<h2>Estabelecimentos</h2>
 <table style="width:100%">
     <thead>
         <tr>

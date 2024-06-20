@@ -149,6 +149,7 @@ def insert():
         data = request.form.get("data")
         egar = request.form.get("egar")
         obra = request.form.get("obra")
+        apa_associado = request.form.get("apa_associado")
         transp = request.form.get("transp")
         nif_transp = request.form.get("nif_transp")
         matricula = request.form.get("matricula")
@@ -167,6 +168,8 @@ def insert():
             return apology("Faltou número da e-GAR")
         if not obra:
             return apology("Faltou designação da obra")
+        if not apa_associado:
+            return apology("Faltou APA do produtor da e-GAR")
         if not transp:
             return apology("Faltou designação do transportador")
         if not nif_transp:
@@ -188,11 +191,15 @@ def insert():
         if not produtor:
             return apology("Faltou produtor do resíduo")
         
-        # Encontrar código apa a partir de contract_short
-
-        apa_estab_db = db.execute("SELECT apa_code FROM apa_code_contract\
-            WHERE contract_short = ?", obra)
-        apa_estab = apa_estab_db[0]["apa_code"]
+        # Encontrar código APA a partir de contract_short, consoante o APA associado à e-GAR
+        if apa_associado == 'GT':
+            apa_estab = 'GT'
+        elif apa_associado == 'estab':
+            apa_estab_db = db.execute("SELECT apa_code FROM apa_code_contract\
+                WHERE contract_short = ?", obra)
+            apa_estab = apa_estab_db[0]["apa_code"]
+        else:
+            return apology ("APA do produtor incorreto")
         
         # Encontrar designação do resíduo a partir de codLER
         
@@ -224,29 +231,95 @@ def history():
     contracts = db.execute("SELECT contract_short FROM apa_code_contract\
         ORDER BY contract_short ASC")
     
+    years = db.execute("""
+    SELECT DISTINCT
+        strftime('%Y', data) AS year
+    FROM
+        wastemap
+    WHERE 
+        dest_final != 'AP' AND empresa_id = ? AND strftime('%Y', data) != 'None'
+    ORDER BY
+        strftime('%Y', data) DESC
+    """, session["user_id"])
+    
     if request.method == "GET":
 
         return render_template("history.html",
-                               obras_mapeadas = [contract["contract_short"] for contract in contracts])
+                               obras_mapeadas = [contract["contract_short"] for contract in contracts],
+                               years=years)
 
     else:
         
         obra = request.form.get("obra")
-
-        if obra == "todas":
-            map = db.execute(
-                "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
-                    codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
-                        FROM wastemap WHERE wastemap.empresa_id = ?\
-                            ORDER BY data ASC",session["user_id"])
+        ano = request.form.get("year") 
         
-        else:
-            map = db.execute(
-                "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
-                    codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
-                        FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
-                            ORDER BY data ASC",session["user_id"], obra)
+        # Opção de ligar e-GAR's
+        ligar_egars = request.form.get("ligar_egars")
+        
+        if ligar_egars == "NA":
+            if obra == "todas" and ano == "todos":
+                map = db.execute(
+                    "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                        codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
+                            FROM wastemap WHERE wastemap.empresa_id = ?\
+                                ORDER BY data ASC",session["user_id"])
+                
+            elif obra != "todas" and ano == "todos":
+                map = db.execute(
+                    "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                        codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
+                            FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
+                                ORDER BY data ASC",session["user_id"],obra)
             
+            elif obra == "todas" and ano != "todos":
+                map = db.execute(
+                    "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                        codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
+                            FROM wastemap WHERE wastemap.empresa_id = ? AND strftime('%Y', data) = ?\
+                                ORDER BY data ASC",session["user_id"],ano)
+                
+            # obra != "todas" and ano != "todos":
+            else:
+                map = db.execute(
+                    "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                        codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
+                            FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ? AND strftime('%Y', data) = ?\
+                                ORDER BY data ASC",session["user_id"],obra, ano)
+        
+        if ligar_egars == "Ligar":
+            if obra == "todas" and ano == "todos":
+                map = db.execute(
+                    "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                        codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
+                            FROM wastemap WHERE wastemap.empresa_id = ?\
+                                AND (dest_final = 'AP' OR apa_estab = 'APA00055104')\
+                                    ORDER BY data ASC",session["user_id"])
+                
+            elif obra != "todas" and ano == "todos":
+                map = db.execute(
+                    "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                        codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
+                            FROM wastemap WHERE wastemap.empresa_id = ? AND (( obra = ? AND dest_final = 'AP') OR apa_estab = 'APA00055104')\
+                                    ORDER BY data ASC",session["user_id"],obra)
+            
+            elif obra == "todas" and ano != "todos":
+                map = db.execute(
+                    "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                        codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
+                            FROM wastemap WHERE wastemap.empresa_id = ?\
+                                AND (dest_final = 'AP' OR apa_estab = 'APA00055104')\
+                                    AND strftime('%Y', data) = ?\
+                                        ORDER BY data ASC",session["user_id"],ano)
+            
+            # obra != "todas" and ano != "todos":
+            else:
+                map = db.execute(
+                    "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
+                        codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
+                            FROM wastemap WHERE wastemap.empresa_id = ? AND ((obra = ? AND dest_final = 'AP') OR apa_estab = 'APA00055104')\
+                                    AND strftime('%Y', data) = ?\
+                                        ORDER BY data ASC",session["user_id"],obra,ano)
+                
         # All the "Select" options:
         contracts = db.execute("SELECT contract_short FROM apa_code_contract\
             ORDER BY contract_short ASC")
@@ -260,8 +333,8 @@ def history():
                                obras_mapeadas = [contract["contract_short"] for contract in contracts],
                                todos_codLer = [codLER["codLER"] for codLER in codes_LER],
                                dest_finais = [operation["operation"] for operation in operations],
-                               produtores = [prod["username"] for prod in producers]
-                               )
+                               produtores = [prod["username"] for prod in producers],
+                               years=years)
 
 # APAGAR diversas informações - relativo a vários html's
 @app.route("/delete", methods=["POST"])
@@ -331,6 +404,7 @@ def edit_egar():
         nova_data = request.form.get("nova_data")
         nova_egar = request.form.get("nova_egar")
         nova_obra = request.form.get("nova_obra")
+        novo_apa_associado = request.form.get("novo_apa_associado")
         novo_transp = request.form.get("novo_transp")
         novo_nif_transp = request.form.get("novo_nif_transp")
         nova_matricula = request.form.get("nova_matricula")
@@ -349,6 +423,8 @@ def edit_egar():
             return apology("Faltou número da e-GAR")
         if not nova_obra:
             return apology("Faltou designação da obra")
+        if not novo_apa_associado:
+            return apology("Faltou APA do produtor da e-GAR LINHA 361 EDIT EGAR")
         if not novo_transp:
             return apology("Faltou designação do transportador")
         if not novo_nif_transp:
@@ -370,10 +446,15 @@ def edit_egar():
         if not novo_produtor:
             return apology("Faltou produtor do resíduo")
             
-        # Encontrar novo código apa a partir de novo contract_short
-        apa_estab_db = db.execute("SELECT apa_code FROM apa_code_contract\
-            WHERE contract_short = ?", nova_obra)
-        apa_estab = apa_estab_db[0]["apa_code"]
+        # Encontrar código APA a partir de contract_short, consoante o APA associado à e-GAR
+        if novo_apa_associado == 'GT':
+            apa_estab = 'GT'
+        elif novo_apa_associado == 'estab':
+            apa_estab_db = db.execute("SELECT apa_code FROM apa_code_contract\
+                WHERE contract_short = ?", nova_obra)
+            apa_estab = apa_estab_db[0]["apa_code"]
+        else:
+            return apology ("APA do produtor incorreto")
                 
         # Encontrar nova designação do resíduo a partir de novo codLER
         residuo_db = db.execute("SELECT description FROM codler_description\
@@ -724,8 +805,11 @@ def mirr():
         # Fontes: 
         # https://www.sqlitetutorial.net/sqlite-cte/
         # https://learnsql.com/blog/cte-vs-subquery/
+        
+    params = {"obra":estab_chosen,"empresa_id":session["user_id"],"ano":year,"produtor":producer}
+    def params_subset(keys):
+        return {k:v for (k,v) in params.items() if k in keys}
 
-    
     if estab_chosen != 'GT': 
         mirr = db.execute("""
         WITH total_each_LER AS (
@@ -760,7 +844,8 @@ def mirr():
                 wastemap.codLER,
                 wastemap.dest_final,
                 wastemap.transp
-            """, obra=estab_chosen, empresa_id=session["user_id"],ano=year,produtor=producer)
+            """, **params_subset(["obra","empresa_id","ano","produtor"]))
+        
         
         print("MIRR NÃO GT: ", mirr)
         
@@ -774,7 +859,8 @@ def mirr():
             FROM
                 wastemap
             WHERE 
-                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano) AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
+                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano) \
+                    AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
             GROUP BY
                 codLER
             )
@@ -794,12 +880,13 @@ def mirr():
             JOIN
                 total_each_LER ON wastemap.codLER = total_each_LER.codLER
             WHERE
-                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano) AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
+                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano)\
+                    AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
             GROUP BY
                 wastemap.codLER,
                 wastemap.dest_final,
                 wastemap.transp
-            """, empresa_id=session["user_id"],ano=year,produtor=producer)
+            """, **params_subset(["empresa_id","ano","produtor"]))
         
     if not mirr:
         flash("Não existem registos para as opções selecionadas")
@@ -810,6 +897,9 @@ def mirr():
         
     return render_template("mirr.html", mirr=mirr, mirr_options = mirr_options, years=years)
 
+
+            
+    
 
 
 
@@ -835,3 +925,5 @@ def mirr():
 
 
 # No final devo alterar a tabela wastemap na parte do produtor de "Produtor Tecnorém" para "Tecnorém apenas"
+
+# Pode existir a hipótese de uma obra ter estabelecimento criado mas as e-GAR's por lapso saírem com GT - Prevêr essa situação

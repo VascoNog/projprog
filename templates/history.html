@@ -18,6 +18,22 @@ History
             {% endfor %}
         </select>
     </div>
+    <div>
+        <select name="year">
+            <option value="todos">Todos</option>
+            {% for year in years %}
+            <option value="{{ year.year }}">{{ year.year }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <br></br>
+        <p> Pretende filtrar dados para poder identificar ligações entre e-GAR's mais facilmente ? </p>
+        <select name="ligar_egars">
+            <option value="NA">Não</option>
+            <option value="Ligar">Sim</option>
+        </select>
+    </div>
     <button type="submit">Aplicar</button>
 </form>
 
@@ -99,6 +115,12 @@ History
                         {% endif %}
                     </div>
                     <div>
+                        <select name="novo_apa_associado" class="form-control mx-auto w-auto" >
+                            <option value="estab" {% if row.apa_estab != "GT" %}selected{% endif %}>APA do Estabelecimento</option>
+                            <option value="GT" {% if row.apa_estab == "GT" %}selected{% endif %}>GT - APA Geral Tecnorém</option>
+                        </select>
+                    </div>
+                    <div>
                         <input name="novo_transp" value="{{row.transp}}" type="text">
                     </div>
                     <div>
@@ -114,7 +136,7 @@ History
                     <div>
                         <select name="novo_codLER">
                             {% for codLER in todos_codLer %}
-                            <option value="{{ codLER }}" {% if codLER==row.codLER %}selected{% endif %}>{{ codLER }}
+                            <option value="{{ codLER }}" {% if codLER == row.codLER %}selected{% endif %}>{{ codLER }}
                             </option>
                             {% endfor %}
                         </select>
@@ -125,7 +147,7 @@ History
                     <div>
                         <select name="novo_dest_final">
                             {% for dest_final in dest_finais %}
-                            <option value="{{ dest_final }}" {% if dest_final==row.dest_final %}selected{% endif %}>{{ dest_final }}</option>
+                            <option value="{{ dest_final }}" {% if dest_final == row.dest_final %}selected{% endif %}>{{ dest_final }}</option>
                             {% endfor %}
                         </select>
                     </div>
