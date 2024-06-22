@@ -12,12 +12,11 @@ Insert
     <div class="row">
         <div class="form-control mx-auto w-auto ">
             <p class="text-white text-center bg-dark"> Data </p>
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="data" placeholder="ano-mês-dia"
-                type="date">
+            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="data" type="date">
         </div>
         <div class="form-control mx-auto w-auto">
             <p class="text-white text-center bg-dark"> N.º e-GAR </p>
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="egar" placeholder="número e-GAR"
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="egar" placeholder="número e-GAR"
                 type="text">
         </div>
         <div class="form-control mx-auto w-auto">
@@ -34,16 +33,16 @@ Insert
         </div>
         <div class="form-control mx-auto w-auto">
             <p class="text-white text-center bg-dark"> Transportador </p>
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="transp"
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="transp"
                 placeholder="nome transportador" type="text">
-            <input autocomplete="off" autofocus class="form-control text-center  mx-auto w-auto" name="nif_transp"
+            <input autocomplete="off" class="form-control text-center  mx-auto w-auto" name="nif_transp"
                 placeholder="NIF transportador" type="number" min="99999999" max="999999999">
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="matricula" placeholder="matrícula" type="text">
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="apa_transp"
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="matricula" placeholder="matrícula" type="text">
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="apa_transp"
             placeholder="APA transportador" type="text">
         </div>
     </div>
-    <br></br>
+    <br>
     <div class="row">
         <div class="form-control mx-auto w-auto">
             <p class="text-white text-center bg-dark"> LER, tonelagem e destino final </p>
@@ -52,7 +51,7 @@ Insert
                 <option value="{{codLER}}">{{codLER}}</option>
                 {% endfor %}
             </select>
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="ton" placeholder="qtd(ton.)"
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="ton" placeholder="qtd(ton.)"
             type="number" min="0.001" step="0.001">
             <select name="dest_final" class="form-control mx-auto w-auto" >
                 {% for dest_final in dest_finais %}
@@ -62,11 +61,11 @@ Insert
         </div>
         <div class="form-control mx-auto w-auto">
             <p class="text-white text-center bg-dark"> Destinatário </p>
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="dest"
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="dest"
             placeholder="nome destinatário" type="text">
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="apa_dest"
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="apa_dest"
             placeholder="APA destinatário" type="text">
-            <input autocomplete="off" autofocus class="form-control text-center  mx-auto w-auto" name="nif_dest"
+            <input autocomplete="off" class="form-control text-center  mx-auto w-auto" name="nif_dest"
             placeholder="NIF destinatário" type="number" min="99999999" max="999999999">
         </div>
         <div class="form-control mx-auto w-auto">
@@ -79,7 +78,7 @@ Insert
             </select>
         </div>  
     </div>
-    <br></br>
+    <br>
     <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Submeter</button>
 </form>
 {% endblock %}

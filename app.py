@@ -138,20 +138,20 @@ def insert():
         producers = db.execute("SELECT username FROM users")
         
         # pré-preencher os vários parâmetros a partir da última e-GAR inserida
-        pre_fill = db.execute("""
-            SELECT *
-            FROM
-                wastemap
-            WHERE
-                empresa_id = ?
-            ORDER BY
-                id DESC
-            LIMIT 1
-            """, session["user_id"])
-        if not pre_fill:
-            return apology("Não existem e-GAR's inseridas no sistema")
+        # pre_fill = db.execute("""
+        #     SELECT *
+        #     FROM
+        #         wastemap
+        #     WHERE
+        #         empresa_id = ?
+        #     ORDER BY
+        #         id DESC
+        #     LIMIT 1
+        #     """, session["user_id"])
+        # if not pre_fill:
+        #     return apology("Não existem e-GAR's inseridas no sistema")
         
-        print("PRE-FILL: ", pre_fill)
+        # print("PRE-FILL: ", pre_fill)
         
         
         return render_template("insert.html",
@@ -159,7 +159,6 @@ def insert():
             todos_codLer = [codLER["codLER"] for codLER in codes_LER],
             dest_finais = [operation["operation"] for operation in operations],
             produtores = [prod["username"] for prod in producers],
-            pre_fill=pre_fill
         )
 
     else:
@@ -420,7 +419,7 @@ def delete():
 
     # from history.html:
     row_id = request.form.get("row_id")
-
+        
     # from establishments.html:
     apa_code = request.form.get("apa_code")
     c_full = request.form.get("c_full")
@@ -854,8 +853,7 @@ def edit_operation_description():
 
         # Realizar as alterações na operação de valorização/eliminação
         db.execute("DELETE FROM operation_description WHERE operation = ?", antiga_operação)
-        db.execute ("INSERT INTO operation_description (operation,description)\
-            VALUES(?,?)", nova_operação, nova_descrição)
+        db.execute ("INSERT INTO operation_description (operation,description) VALUES(?,?)", nova_operação, nova_descrição)
 
         # Show all operations (after changes)
         all_operations = db.execute("SELECT * FROM operation_description\

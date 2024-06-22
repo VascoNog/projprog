@@ -80,15 +80,21 @@ History
             <td>{{ row.apa_dest }}</td>
             <td>{{ row.produtor }}</td>
             <td>
-                <form action="/delete" method="post">
+                <button class="delete_button" onclick="showConfirmDelete('{{ row.id }}')">Apagar</button>
+                <form id="deleteEGAR{{ row.id }}" action="/delete" method="post" style="display: none;">
                     <div>
                         <input name="row_id" type="hidden" value="{{ row.id }}">
                     </div>
                     <div>
                         <input name="obra" type="hidden" value="{{ row.obra }}">
                     </div>
+                    <p>Pretende mesmo eliminar? A ação será irreversível</p>
                     <div>
-                        <input class="delete_button" type="submit" value="Apagar">
+                        <button type="submit">Confirmar</button>
+                    </div>
+                    <br>
+                    <div>
+                        <button type="button" onclick="hideConfirmDelete('{{ row.id }}')"> Cancelar </button>
                     </div>
                 </form>
             </td>
@@ -179,6 +185,18 @@ History
 </table>
 
 <script>
+    function showConfirmDelete(rowId) {
+        var rowForDeleting = "deleteEGAR" + rowId;
+        var deletingForm = document.getElementById(rowForDeleting);
+        if (deletingForm) {
+            deletingForm.style.display = deletingForm.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    function hideConfirmDelete(rowId) {
+        document.getElementById('deleteEGAR' + rowId).style.display = 'none';
+    }
+
     function showEditForm(rowId) {
         var rowForEdition = 'showForm' + rowId;
         var editingForm = document.getElementById(rowForEdition);
