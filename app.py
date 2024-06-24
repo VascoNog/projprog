@@ -418,12 +418,10 @@ def history():
 def delete():
 
     # from history.html:
-    row_id = request.form.get("row_id")
+    row_id_hist = request.form.get("row_id_hist")
         
     # from establishments.html:
-    apa_code = request.form.get("apa_code")
-    c_full = request.form.get("c_full")
-    c_short = request.form.get("c_short")
+    row_id_estab = request.form.get("row_id_estab")
 
     # from codler_description.html:
     codLER = request.form.get("codLER")
@@ -432,9 +430,9 @@ def delete():
     operation = request.form.get("operation")
 
     # history.html:
-    if row_id:
+    if row_id_hist:
         db.execute("DELETE FROM wastemap WHERE wastemap.id = ?\
-            AND wastemap.empresa_id = ?", row_id, session["user_id"])
+            AND wastemap.empresa_id = ?", row_id_hist, session["user_id"])
 
         obra = request.form.get("obra")
         map_exists = db.execute("SELECT * FROM wastemap WHERE obra = ?", obra)
@@ -488,20 +486,31 @@ def delete():
             return redirect("/history")
 
     # establishments.html:
-    if apa_code and c_full and c_short:
-        db.execute("DELETE FROM apa_code_contract WHERE apa_code = ?\
-            AND contract_full = ?\
-                AND contract_short = ?", apa_code, c_full, c_short)
+    print("ROW_ID_ESTAB: ", row_id_estab)
+    if row_id_estab:
+        db.execute("""
+            DELETE FROM 
+                apa_code_contract
+            WHERE
+                id = ?""", row_id_estab)
         return redirect("/establishments")
 
     # codler_description.html:
     if codLER:
-        db.execute("DELETE FROM codler_description WHERE codLER = ?", codLER)
+        db.execute("""
+            DELETE FROM
+                codler_description
+            WHERE
+                codLER = ?""", codLER)
         return redirect("/codler_description")
 
     # operation_description.html:
     if operation:
-        db.execute("DELETE FROM operation_description WHERE operation = ?", operation)
+        db.execute("""
+            DELETE FROM
+                operation_description
+            WHERE
+                operation = ?""", operation)
         return redirect("/operation_description")
 
 
@@ -627,7 +636,7 @@ def edit_egar():
 def establishments():
 
     if request.method == "GET":
-        all_estab = db.execute("SELECT apa_code,contract_full,contract_short \
+        all_estab = db.execute("SELECT id,apa_code,contract_full,contract_short \
             FROM apa_code_contract ORDER BY apa_code DESC")
 
         return render_template("establishments.html", all_estab=all_estab)

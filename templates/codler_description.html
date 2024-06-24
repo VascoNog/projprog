@@ -30,12 +30,17 @@ LER
             <td>{{ row.codLER }}</td>
             <td>{{ row.description }}</td>
             <td>
-                <form action="/delete" method="post">
+                <button class="delete_button" onclick="showConfirmDelete('{{ row.codLER }}')">Apagar</button>
+                <form id="deleteLER{{ row.codLER }}" action="/delete" method="post" style="display: none;">
                     <div>
                         <input name="codLER" type="hidden" value="{{ row.codLER }}">
                     </div>
+                    <p> A ação será irreversível </p>
                     <div>
-                        <input class="delete_button" type="submit" value="Apagar">
+                        <button type="submit"> Confirmar </button>
+                    </div>
+                    <div>
+                        <button type="button" onclick="hideConfirmDelete('{{ row.codLER }}')"> Cancelar </button>
                     </div>
                 </form>
             </td>
@@ -60,6 +65,19 @@ LER
 </table>
 
 <script>
+    function showConfirmDelete(codLER){
+        var rowForDeleting = "deleteLER" + codLER;
+        var deletingForm = document.getElementById(rowForDeleting);
+        if (deletingForm) {
+            deletingForm.style.display = deletingForm.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    function hideConfirmDelete(codLER){
+        document.getElementById("deleteLER" + codLER).style.display = 'none';
+
+    }
+
     function showEditForm(codLER) {
         var rowForEdition = 'showForm' + codLER;
         var editingForm = document.getElementById(rowForEdition);

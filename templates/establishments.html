@@ -5,27 +5,29 @@ Estabelecimentos
 {% endblock %}
 
 {% block main %}
-
-<br></br>
+<br>
 <p class="display-6 text-center"> INSERIR ESTABELECIMENTO APA</p>
-<br></br>
+<br>
 <form action="/establishments" method="post">
-    <div>
-        <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="apa_code" placeholder="Código APA"
-            type="text">
+    <div class="row">
+        <div class="form-control mx-auto w-auto ">
+            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="apa_code" placeholder="Código APA"
+                type="text">
+        </div>
+        <div class="form-control mx-auto w-auto ">
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="nome_estab"
+                placeholder="Designação completa" type="text">
+        </div>
+        <div class="form-control mx-auto w-auto ">
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="nome_estab_curto"
+                placeholder="Designação curta" type="text">
+        </div>
     </div>
-    <div>
-        <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="nome_estab"
-            placeholder="Designação completa" type="text">
-    </div>
-    <div>
-        <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="nome_estab_curto"
-            placeholder="Designação curta" type="text">
-    </div>
-    <br></br>
+    <br>
     <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Gravar</button>
+    <br>
 </form>
-<br></br>
+<br>
 
 <table style="width:100%">
     <thead>
@@ -42,18 +44,18 @@ Estabelecimentos
             <td>{{ row.contract_full }}</td>
             <td>{{ row.contract_short }}</td>
             <td>
-                <form action="/delete" method="post">
+                <button class="delete_button" onclick="showConfirmDelete('{{ row.id }}')">Apagar</button>
+                <form id="deleteEstab{{ row.id }}" action="/delete" method="post" style="display: none;">
                     <div>
-                        <input name="apa_code" type="hidden" value="{{ row.apa_code }}">
+                        <input name="row_id_estab" type="hidden" value="{{ row.id }}">
                     </div>
+                    <p>A ação será irreversível</p>
                     <div>
-                        <input name="c_full" type="hidden" value="{{ row.contract_full }}">
+                        <button type="submit">Confirmar</button>
                     </div>
+                    <br>
                     <div>
-                        <input name="c_short" type="hidden" value="{{ row.contract_short }}">
-                    </div>
-                    <div>
-                        <input class="delete_button" type="submit" value="Apagar">
+                        <button type="button" onclick="hideConfirmDelete('{{ row.id }}')"> Cancelar </button>
                     </div>
                 </form>
             </td>
@@ -87,6 +89,18 @@ Estabelecimentos
 </table>
 
 <script>
+    function showConfirmDelete(rowId) {
+        var rowForDeleting = "deleteEstab" + rowId;
+        var deletingForm = document.getElementById(rowForDeleting);
+        if (deletingForm) {
+            deletingForm.style.display = deletingForm.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    function hideConfirmDelete(rowId) {
+        document.getElementById('deleteEstab' + rowId).style.display = 'none';
+    }
+
     function showEditForm(apa_code) {
         var rowForEdition = 'showForm' + apa_code;
         var editingForm = document.getElementById(rowForEdition);

@@ -83,12 +83,12 @@ History
                 <button class="delete_button" onclick="showConfirmDelete('{{ row.id }}')">Apagar</button>
                 <form id="deleteEGAR{{ row.id }}" action="/delete" method="post" style="display: none;">
                     <div>
-                        <input name="row_id" type="hidden" value="{{ row.id }}">
+                        <input name="row_id_hist" type="hidden" value="{{ row.id }}">
                     </div>
                     <div>
                         <input name="obra" type="hidden" value="{{ row.obra }}">
                     </div>
-                    <p>Pretende mesmo eliminar? A ação será irreversível</p>
+                    <p>Tem a certeza? A ação será irreversível</p>
                     <div>
                         <button type="submit">Confirmar</button>
                     </div>

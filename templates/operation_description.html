@@ -31,12 +31,17 @@ Operations
             <td>{{ row.operation }}</td>
             <td>{{ row.description }}</td>
             <td>
-                <form action="/delete" method="post">
+                <button class="delete_button" onclick="showConfirmDelete('{{ row.operation}}')">Apagar</button>
+                <form id="deleteOp{{ row.operation }}" action="/delete" method="post" style="display: none;">
                     <div>
                         <input name="operation" type="hidden" value="{{ row.operation }}">
                     </div>
+                    <p> A ação será irreversível </p>
                     <div>
-                        <input class="delete_button" type="submit" value="Apagar">
+                        <button type="submit"> Confirmar </button>
+                    </div>
+                    <div>
+                        <button type="button" onclick="hideConfirmDelete('{{ row.operation }}')"> Cancelar </button>
                     </div>
                 </form>
             </td>
@@ -61,6 +66,20 @@ Operations
 </table>
 
 <script>
+
+    function showConfirmDelete(operation){
+        var rowForDeleting = "deleteOp" + operation;
+        var deletingForm = document.getElementById(rowForDeleting);
+        if (deletingForm) {
+            deletingForm.style.display = deletingForm.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    function hideConfirmDelete(operation){
+        document.getElementById("deleteOp" + operation).style.display = 'none';
+
+    }
+
     function showEditForm(operation) {
         var rowForEdition = 'showForm' + operation;
         var editingForm = document.getElementById(rowForEdition);
