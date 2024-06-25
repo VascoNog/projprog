@@ -5,15 +5,21 @@ LER
 {% endblock %}
 
 {% block main %}
-<h2>Inserir novo código LER</h2>
+<br>
+<p class="display-6 text-center"> INSERIR NOVO CÓDIGO LER</p>
+<br>
 <form action="/codler_description" method="post">
-    <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="codLER" placeholder="LER (no formato XX XX XX ou XXXXXX)" type="text">
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="codLER" placeholder="LER (no formato XX XX XX ou XXXXXX)" type="text">
+        </div>
+        <div class="col-auto">
+            <input autocomplete="off" class="form-control mx-auto w-auto" name="description" placeholder="Descrição LER" type="text">
+        </div>
     </div>
-    <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="description" placeholder="Descrição LER" type="text">
-    </div>
-    <button type="submit">Gravar</button>
+    <br>
+    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Gravar</button>
+    <br>
 </form>
 
 <h2>Códigos LER inseridos</h2>

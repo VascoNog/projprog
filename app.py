@@ -671,9 +671,9 @@ def establishments():
                 VALUES(?,?,?)", apa_code,nome_estab,nome_estab_curto)
 
         # Show all establishments
-        all_estab = db.execute("SELECT apa_code,contract_full,contract_short \
+        all_estab = db.execute("SELECT id,apa_code,contract_full,contract_short \
             FROM apa_code_contract ORDER BY apa_code DESC")
-
+        
         return render_template("establishments.html", all_estab=all_estab)
 
 # EDITAR estabelecimentos criados
