@@ -5,37 +5,48 @@ History
 {% endblock %}
 
 {% block main %}
-
-<button id="exportTableButton" onClick = "exportTableToExcel()"> Exportar para Excel</button>
+<br>
+<p class="display-6 text-center"> MAPA DE RESÍDUOS </p>
+<br>
+<div class="row justify-content-center">
+    <button id="exportTableButton" class="exportTableToExcelButton" style="width: 250px" onClick = "exportTableToExcel()"> Exportar para Excel</button>
+</div>
+<br>
 
 <h3>Filtrar</h3>
 <form action="/history" method="post">
-    <div>
-        <select name="obra">
-            <option value="todas">Todas</option>
-            {% for obra in obras_mapeadas %}
-            <option value="{{ obra }}">{{ obra }}</option>
-            {% endfor %}
-        </select>
+    <div class="col-auto">
+        <div class="form-group">
+            <label for="obra">Empreitada:</label>
+            <select name="obra" class="form-control" style="width: auto; margin-right: auto; margin-left: 0; background-color: grey; color: white">
+                <option value="todas">Todas</option>
+                {% for obra in obras_mapeadas %}
+                <option value="{{ obra }}">{{ obra }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="year">Ano:</label>
+            <select name="year" class="form-control" style="width: auto; margin-right: auto; margin-left: 0; background-color: grey; color: white">
+                <option value="todos">Todos</option>
+                {% for year in years %}
+                <option value="{{ year.year }}">{{ year.year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="ligar_egars"> Filtrar por AP - Armazenamento Preliminar e recolhas na Sede? </label>
+            <select name="ligar_egars" class="form-control" style="width: auto; margin-right: auto; margin-left: 0; background-color: black; color: whitesmoke">
+                <option value="NA">Não</option>
+                <option value="Ligar">Sim</option>
+            </select>
+        </div>
     </div>
-    <div>
-        <select name="year">
-            <option value="todos">Todos</option>
-            {% for year in years %}
-            <option value="{{ year.year }}">{{ year.year }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div>
-        <br></br>
-        <p> Filtrar por AP e recolhas na Sede? </p>
-        <select name="ligar_egars">
-            <option value="NA">Não</option>
-            <option value="Ligar">Sim</option>
-        </select>
-    </div>
-    <br></br>
-    <button type="submit">Aplicar</button>
+    <br>
+    <button class="form-control text-white fw-bold bg-primary" style="width: auto; margin-right: auto; margin-left: 0;" type="submit">Aplicar</button>
+    <br>
 </form>
 
 
@@ -57,7 +68,9 @@ History
             <th>Dest.</th>
             <th>NIF Dest.</th>
             <th>APA Dest.</th>
-            <th>Produtor</th> 
+            <th>Produtor</th>
+            <th style="display: none;"> Apagar</th>
+            <th style="display: none;"> Editar</th>
         </tr>
     </thead>
     <tbody>
@@ -80,7 +93,7 @@ History
             <td>{{ row.apa_dest }}</td>
             <td>{{ row.produtor }}</td>
             <td>
-                <button class="delete_button" onclick="showConfirmDelete('{{ row.id }}')">Apagar</button>
+                <button class="delet_edit_bttn" style="background-color: tomato; color: whitesmoke" onclick="showConfirmDelete('{{ row.id }}')">Apagar</button>
                 <form id="deleteEGAR{{ row.id }}" action="/delete" method="post" style="display: none;">
                     <div>
                         <input name="row_id_hist" type="hidden" value="{{ row.id }}">
@@ -88,31 +101,39 @@ History
                     <div>
                         <input name="obra" type="hidden" value="{{ row.obra }}">
                     </div>
-                    <p>Tem a certeza? A ação será irreversível</p>
+                    <br>
+                    <p class="fw-bold text-danger text-center mx-auto"> Atenção, a ação será irreversível! </p>
                     <div>
-                        <button type="submit">Confirmar</button>
+                        <button type="submit" class="form-control text-white fw-bold text-center mx-auto bg-success">Confirmar</button>
                     </div>
                     <br>
                     <div>
-                        <button type="button" onclick="hideConfirmDelete('{{ row.id }}')"> Cancelar </button>
+                        <button type="button" class="form-control text-white fw-bold text-center mx-auto bg-danger" onclick="hideConfirmDelete('{{ row.id }}')"> Cancelar </button>
                     </div>
+                    <br>
                 </form>
             </td>
             <td>
-                <button class="edit_button" onclick="showEditForm('{{ row.id }}')">Editar</button>
+                <button class="delet_edit_bttn" style="background-color: lightblue; color: black" onclick="showEditForm('{{ row.id }}')">Editar</button>
                 <form id="showForm{{row.id}}" action="/edit_egar" method="post" style="display: none;">
                     <div>
                         <input name="row_id" type="hidden" value="{{ row.id }}">
                     </div>
-                    <div>
-                        <input name="nova_data" value="{{row.data}}" type="date">
+                    <br>
+                    <div class="form-group">
+                        <label for="nova_data">Data:</label>
+                        <input name="nova_data" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{row.data}}" type="date">
                     </div>
-                    <div>
-                        <input name="nova_egar" value="{{row.egar}}" type="text">
+                    <br>
+                    <div class="form-group">
+                        <label for="nova_egar">N.º e-GAR:</label>
+                        <input name="nova_egar" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{row.egar}}" type="text">
                     </div>
-                    <div>
+                    <br>
+                    <div class="form-group">
+                        <label for="nova_data">Obra:</label>
                         {% if obras_mapeadas %}
-                        <select name="nova_obra">
+                        <select name="nova_obra" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black">
                             {% for obra in obras_mapeadas %}
                             <option value="{{ obra }}" {% if obra==row.obra %}selected{% endif %}>{{ obra }}</option>
                             {% endfor %}
@@ -120,63 +141,55 @@ History
                         {% else %}
                         <p>Nenhuma obra disponível</p>
                         {% endif %}
-                    </div>
-                    <div>
-                        <select name="novo_apa_associado" class="form-control mx-auto w-auto" >
+                        <select name="novo_apa_associado" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black">
                             <option value="estab" {% if row.apa_estab != "GT" %}selected{% endif %}>APA do Estabelecimento</option>
                             <option value="GT" {% if row.apa_estab == "GT" %}selected{% endif %}>GT - APA Geral Tecnorém</option>
                         </select>
                     </div>
-                    <div>
-                        <input name="novo_transp" value="{{row.transp}}" type="text">
-                    </div>
-                    <div>
-                        <input name="novo_nif_transp" value="{{row.nif_transp}}" type="number" min="99999999"
+                    <br>
+                    <div class="form-group">
+                        <label for="novo_transp">Transportador:</label>
+                        <input name="novo_transp" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.transp}}" type="text">
+                        <input name="novo_nif_transp" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.nif_transp}}" type="number" min="99999999"
                             max="999999999">
+                        <input name="nova_matricula" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.matricula}}" type="text">
+                        <input name="novo_apa_transp" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.apa_transp}}" type="text">
                     </div>
-                    <div>
-                        <input name="nova_matricula" value="{{row.matricula}}" type="text">
-                    </div>
-                    <div>
-                        <input name="novo_apa_transp" value="{{row.apa_transp}}" type="text">
-                    </div>
-                    <div>
-                        <select name="novo_codLER">
+                    <br>
+                    <div class="form-group">
+                        <label for="novo_codLER">LER, tonelagem e destino final:</label>
+                        <select name="novo_codLER" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black">
                             {% for codLER in todos_codLer %}
                             <option value="{{ codLER }}" {% if codLER == row.codLER %}selected{% endif %}>{{ codLER }}
                             </option>
                             {% endfor %}
                         </select>
-                    </div>
-                    <div>
-                        <input name="nova_ton" value="{{row.ton}}" type="number" min="0.001" step="0.001">
-                    </div>
-                    <div>
-                        <select name="novo_dest_final">
+                        <input name="nova_ton" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.ton}}" type="number" min="0.001" step="0.001">
+                        <select name="novo_dest_final" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black">
                             {% for dest_final in dest_finais %}
                             <option value="{{ dest_final }}" {% if dest_final == row.dest_final %}selected{% endif %}>{{ dest_final }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div>
-                        <input name="novo_dest" value="{{row.dest}}" type="text">
+                    <br>
+                    <div class="form-group">
+                        <label for="novo_transp">Destinatário:</label>
+                        <input name="novo_transp" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.dest}}" type="text">
+                        <input name="novo_nif_dest" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.nif_dest}}" type="number" min="99999999" max="999999999">
+                        <input name="novo_apa_dest" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.apa_dest}}" type="text">
                     </div>
-                    <div>
-                        <input name="novo_nif_dest" value="{{row.nif_dest}}" type="number" min="99999999"
-                            max="999999999">
-                    </div>
-                    <div>
-                        <input name="novo_apa_dest" value="{{row.apa_dest}}" type="text">
-                    </div>
-                    <div>
-                        <select name="novo_produtor">
+                    <br>
+                    <div class="form-group">
+                        <label for="novo_produtor">Produtor do resíduo:</label>
+                        <select name="novo_produtor" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black">
                             <option value="Outro">Outro (Empresa fora do Grupo Tecnorém) </option>
                             {% for produtor in produtores %}
                             <option value="{{produtor}}" {%if produtor == row.produtor %}selected{% endif %}> {{ produtor }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <button type="submit">Aplicar alterações</button>
+                    <br>
+                    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Aplicar alterações</button>
                 </form>
             </td>
         </tr>
@@ -205,13 +218,20 @@ History
         }
     }
 
-    function exportTableToExcel(){
-        const tableToExport = document.getElementById('tableId')
+    // Preparing for the Excel
+    function exportTableToExcel() {
+        const table = document.getElementById('tableId');
+        const tableToExport = table.cloneNode(true);
+
+        // Remove the last two columns (Apagar and Editar) from the cloned table
+        const rows = tableToExport.querySelectorAll('tr');
+        rows.forEach(row => {
+            row.deleteCell(-1); // Delete last cell (Editar)
+            row.deleteCell(-1); // Delete second last cell (Apagar)
+        });
         const workbook = XLSX.utils.table_to_book(tableToExport);
-        XLSX.writeFile(workbook,"GestResProduzidos_dd-mm-aaaa.xlsx");
-
+        XLSX.writeFile(workbook, "GestResProduzidos_dd-mm-aaaa.xlsx");
     }
-
 </script>
 
 {% endblock %}

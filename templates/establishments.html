@@ -10,17 +10,15 @@ Estabelecimentos
 <br>
 <form action="/establishments" method="post">
     <div class="row justify-content-center">
-        <div class="form-control mx-auto w-auto ">
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="apa_code" placeholder="Código APA"
+        <div class="col-auto">
+            <input autocomplete="off" autofocus class="form-control text-center mx-auto" style="width: 310px; background-color: rgba(20, 125, 155, 0.5)"" name="apa_code" placeholder="Código APA: APAXXXXXXXX ou GT"
                 type="text">
         </div>
-        <div class="form-control mx-auto w-auto ">
-            <input autocomplete="off" class="form-control w-3x" name="nome_estab"
-                placeholder="Designação completa" type="text">
+        <div class="col-auto">
+            <input autocomplete="off" class="form-control text-center mx-auto" style="width: 700px; background-color: rgba(20, 125, 155, 0.5)" name="nome_estab" placeholder="Designação completa" type="text">
         </div>
-        <div class="form-control mx-auto w-auto ">
-            <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="nome_estab_curto"
-                placeholder="Designação curta" type="text">
+        <div class="col-auto">
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" style ="background-color: rgba(20, 125, 155, 0.5)" name="nome_estab_curto" placeholder="Designação curta" type="text">
         </div>
     </div>
     <br>
@@ -44,23 +42,25 @@ Estabelecimentos
             <td>{{ row.contract_full }}</td>
             <td>{{ row.contract_short }}</td>
             <td>
-                <button class="delete_button" onclick="showConfirmDelete('{{ row.id }}')">Apagar</button>
+                <button class="delet_edit_bttn" style="background-color: tomato; color: whitesmoke" onclick="showConfirmDelete('{{ row.id }}')">Apagar</button>
                 <form id="deleteEstab{{ row.id }}" action="/delete" method="post" style="display: none;">
                     <div>
                         <input name="row_id_estab" type="hidden" value="{{ row.id }}">
                     </div>
-                    <p>A ação será irreversível</p>
+                    <br>
+                    <p class="fw-bold text-danger text-center mx-auto"> Atenção, a ação será irreversível! </p>
                     <div>
-                        <button type="submit">Confirmar</button>
+                        <button type="submit" class="form-control text-white fw-bold text-center mx-auto bg-success">Confirmar</button>
                     </div>
                     <br>
                     <div>
-                        <button type="button" onclick="hideConfirmDelete('{{ row.id }}')"> Cancelar </button>
+                        <button type="button" class="form-control text-white fw-bold text-center mx-auto bg-danger" onclick="hideConfirmDelete('{{ row.id }}')"> Cancelar </button>
                     </div>
+                    <br>
                 </form>
             </td>
             <td>
-                <button class="edit_button" onclick="showEditForm('{{ row.apa_code }}')">Editar</button>
+                <button class="delet_edit_bttn" style="background-color: lightblue; color: black" onclick="showEditForm('{{ row.apa_code }}')">Editar</button>
                 <form id="showForm{{ row.apa_code }}" action="/edit_establishments" method="post" style="display: none;">
                     <div>
                         <input name="antigo_apa" type="hidden" value="{{ row.apa_code }}">
@@ -71,16 +71,18 @@ Estabelecimentos
                     <div>
                         <input name="antiga_design_curta" type="hidden" value="{{ row.contract_short }}">
                     </div>
+                    <br>
                     <div>
-                        <input name="novo_apa" value="{{ row.apa_code }}" type = "text">
+                        <input name="novo_apa" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{ row.apa_code }}" type = "text">
                     </div>
                     <div>
-                        <input name="nova_design_longa" value="{{ row.contract_full }}" type = "text">
+                        <input name="nova_design_longa" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{ row.contract_full }}" type = "text">
                     </div>
                     <div>
-                        <input name="nova_design_curta" value="{{ row.contract_short }}" type = "text">
+                        <input name="nova_design_curta" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{ row.contract_short }}" type = "text">
                     </div>
-                    <button type="submit">Aplicar alterações</button>
+                    <br>
+                    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Aplicar alterações</button>
                 </form>
             </td>
         </tr>

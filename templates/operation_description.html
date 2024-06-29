@@ -5,19 +5,25 @@ Operations
 {% endblock %}
 
 {% block main %}
+<br>
+<p class="display-6 text-center"> INSERIR OPERAÇÃO DE VALORIZAÇÃO/ELIMINAÇÃO</p>
+<p class="display-8 text-center"> DESTINO FINAL</p>
+<br>
 <form action="/operation_description" method="post">
-    <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="operation" placeholder="Operação de valorização/eliminação - Destino Final"
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <input autocomplete="off" autofocus class="form-control text-center mx-auto" style="width: 400px; background-color: rgba(20, 125, 155, 0.5)" name="operation" placeholder="Operação de valorização/eliminação - Destino Final"
             type="text">
+        </div>
+        <div class="col-auto">
+            <input autocomplete="off" autofocus class="form-control text-center mx-auto" style="width: 1000px; background-color: rgba(20, 125, 155, 0.5)" name="description" placeholder="Descrição da operação de valorização/eliminação - Destino Final" type="text">
+        </div>
     </div>
-    <div>
-        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="description"
-            placeholder="Descrição da operação de valorização/eliminação " type="text">
-    </div>
-    <button type="submit">Gravar</button>
+    <br>
+    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Gravar</button>
+    <br>
 </form>
 
-<h2>Operações de Valorização/Eliminação de Resíduos</h2>
 <table style="width:100%">
     <thead>
         <tr>
@@ -31,33 +37,38 @@ Operations
             <td>{{ row.operation }}</td>
             <td>{{ row.description }}</td>
             <td>
-                <button class="delete_button" onclick="showConfirmDelete('{{ row.operation}}')">Apagar</button>
+                <button class="delet_edit_bttn" style="background-color: tomato; color: whitesmoke" onclick="showConfirmDelete('{{ row.operation}}')">Apagar</button>
                 <form id="deleteOp{{ row.operation }}" action="/delete" method="post" style="display: none;">
                     <div>
                         <input name="operation" type="hidden" value="{{ row.operation }}">
                     </div>
-                    <p> A ação será irreversível </p>
+                    <br>
+                    <p class="fw-bold text-danger text-center mx-auto"> Atenção, a ação será irreversível! </p>
                     <div>
-                        <button type="submit"> Confirmar </button>
+                        <button type="submit" class="form-control text-white fw-bold text-center mx-auto bg-success"> Confirmar </button>
                     </div>
+                    <br>
                     <div>
-                        <button type="button" onclick="hideConfirmDelete('{{ row.operation }}')"> Cancelar </button>
+                        <button type="button" class="form-control text-white fw-bold text-center mx-auto bg-danger" onclick="hideConfirmDelete('{{ row.operation }}')"> Cancelar </button>
                     </div>
+                    <br>
                 </form>
             </td>
             <td>
-                <button class="edit_button" onclick="showEditForm('{{ row.operation }}')">Editar</button>
+                <button class="delet_edit_bttn" style="background-color: lightblue; color: black" onclick="showEditForm('{{ row.operation }}')">Editar</button>
                 <form id="showForm{{ row.operation }}" action="/edit_operation_description" method="post" style="display: none;">
                     <div>
                         <input name="antiga_operação" value="{{ row.operation }}" type = "hidden">
                     </div>
+                    <br>
                     <div>
-                        <input name="nova_operação" value="{{ row.operation }}" type = "text">
+                        <input name="nova_operação" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{ row.operation }}" type = "text">
                     </div>
                     <div>
-                        <input name="nova_descrição" value="{{ row.description }}" type = "text">
+                        <input name="nova_descrição" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{ row.description }}" type = "text">
                     </div>
-                    <button type="submit">Aplicar alterações</button>
+                    <br>
+                    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Aplicar alterações</button>
                 </form>
             </td>
         </tr>

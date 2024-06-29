@@ -11,10 +11,10 @@ LER
 <form action="/codler_description" method="post">
     <div class="row justify-content-center">
         <div class="col-auto">
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="codLER" placeholder="LER (no formato XX XX XX ou XXXXXX)" type="text">
+            <input autocomplete="off" autofocus class="form-control text-center mx-auto" style="width: 310px; background-color: rgba(20, 125, 155, 0.5)" name="codLER" placeholder="LER (no formato XX XX XX ou XXXXXX)" type="text">
         </div>
         <div class="col-auto">
-            <input autocomplete="off" class="form-control mx-auto w-auto" name="description" placeholder="Descrição LER" type="text">
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" style="background-color: rgba(20, 125, 155, 0.5)" name="description" placeholder="Descrição LER" type="text">
         </div>
     </div>
     <br>
@@ -22,7 +22,6 @@ LER
     <br>
 </form>
 
-<h2>Códigos LER inseridos</h2>
 <table style="width:100%">
     <thead>
         <tr>
@@ -36,33 +35,38 @@ LER
             <td>{{ row.codLER }}</td>
             <td>{{ row.description }}</td>
             <td>
-                <button class="delete_button" onclick="showConfirmDelete('{{ row.codLER }}')">Apagar</button>
+                <button class="delet_edit_bttn" style="background-color: tomato; color: whitesmoke" onclick="showConfirmDelete('{{ row.codLER }}')">Apagar</button>
                 <form id="deleteLER{{ row.codLER }}" action="/delete" method="post" style="display: none;">
                     <div>
                         <input name="codLER" type="hidden" value="{{ row.codLER }}">
                     </div>
-                    <p> A ação será irreversível </p>
+                    <br>
+                    <p class="fw-bold text-danger text-center mx-auto"> Atenção, a ação será irreversível! </p>
                     <div>
-                        <button type="submit"> Confirmar </button>
+                        <button class="form-control text-white fw-bold mx-auto w-auto bg-success" type="submit"> Confirmar </button>
                     </div>
+                    <br>
                     <div>
-                        <button type="button" onclick="hideConfirmDelete('{{ row.codLER }}')"> Cancelar </button>
+                        <button type="button" class="form-control text-white fw-bold mx-auto w-auto bg-danger"  onclick="hideConfirmDelete('{{ row.codLER }}')"> Cancelar </button>
                     </div>
+                    <br>
                 </form>
             </td>
             <td>
-                <button class="edit_button" onclick="showEditForm('{{ row.codLER }}')">Editar</button>
+                <button class="delet_edit_bttn" style="background-color: lightblue; color: black" onclick="showEditForm('{{ row.codLER }}')">Editar</button>
                 <form id="showForm{{ row.codLER }}" action="/edit_codler_description" method="post" style="display: none;">
                     <div>
                         <input name="antigo_codLER" value="{{ row.codLER }}" type = "hidden">
                     </div>
+                    <br>
                     <div>
-                        <input name="novo_codLER" value="{{ row.codLER }}" type = "text">
+                        <input name="novo_codLER" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{ row.codLER }}" type = "text">
                     </div>
                     <div>
-                        <input name="nova_descrição" value="{{ row.description }}" type = "text">
+                        <input name="nova_descrição" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{ row.description }}" type = "text">
                     </div>
-                    <button type="submit">Aplicar alterações</button>
+                    <br>
+                    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Aplicar alterações</button>
                 </form>
             </td>
         </tr>

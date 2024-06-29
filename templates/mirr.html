@@ -5,27 +5,40 @@ MIRR
 {% endblock %}
 
 {% block main %}
+<br>
+<p class="display-6 text-center"> MIRR </p>
+<br>
+<div class="row justify-content-center">
+    <button id="exportTableButton" class="exportTableToExcelButton" style="width: 250px" onClick = "exportTableToExcel()"> Exportar para Excel </button>
+</div>
+<br>
 
-<button id="exportTableButton" onClick = "exportTableToExcel()"> Exportar MIRR para Excel</button>
 
-<h3>Escolher estabelecimento</h3>
+<h3>Filtrar</h3>
 <form action="/mirr" method="post">
-    <div>
-        <select name="estab_chosen">
-            <option value="GT">GT</option>
-            {% for opt in mirr_options %}
-            <option value="{{ opt.contract_short }}">{{ opt.contract_short }}</option>
-            {% endfor %}
-        </select>
+    <div class="col-auto">
+        <div class="form-group">
+            <label for="estab_chosen">Estabelecimento:</label>
+            <select name="estab_chosen" class="form-control" style="width: auto; margin-right: auto; margin-left: 0; background-color: grey; color: white">
+                <option value="GT">GT</option>
+                {% for opt in mirr_options %}
+                <option value="{{ opt.contract_short }}">{{ opt.contract_short }}</option>
+                {% endfor %}
+            </select>
+        <div>
+        <br>
+        <div class="form-group">
+            <label for="year">Ano:</label>
+            <select name="year" class="form-control" style="width: auto; margin-right: auto; margin-left: 0; background-color: grey; color: white">
+                {% for year in years %}
+                <option value="{{ year.year }}">{{ year.year }}</option>
+                {% endfor %}
+            </select>
+        </div>
     </div>
-    <div>
-        <select name="year">
-            {% for year in years %}
-            <option value="{{ year.year }}">{{ year.year }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <button type="submit">Gerar MIRR</button>
+    <br>
+    <button class="form-control text-white fw-bold bg-primary" style="width: auto; margin-right: auto; margin-left: 0;" type="submit">Gerar MIRR</button>
+    <br>
 </form>
 
 

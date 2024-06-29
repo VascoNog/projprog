@@ -7,3 +7,32 @@ nav .navbar-brand {
     font-size: 15px; /* Tamanho de fonte personalizado */
 }
 
+.body_layout {
+    background-color: #fdf3e4;
+}
+
+.inputsForms {
+    background-color: rgba(20, 125, 155, 0.5);
+}
+
+.exportTableToExcelButton{
+    font-size: 20px;
+    color: white;
+    font-weight: bold;
+    background-color: green;
+    border: none;
+    border-radius: 10px; /* Arredondar vértices do botão */
+}
+
+
+/* criar efeito de click */
+.exportTableToExcelButton:active {
+    background-color: #3e8e41;
+    box-shadow: 0 4px #666;
+    transform: translateY(4px);
+}
+
+.delet_edit_bttn {
+    border: none;
+    border-radius: 10px; /* Arredondar vértices do botão */
+}
