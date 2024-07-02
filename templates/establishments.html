@@ -11,18 +11,18 @@ Estabelecimentos
 <form action="/establishments" method="post">
     <div class="row justify-content-center">
         <div class="col-auto">
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto" style="width: 310px; background-color: rgba(20, 125, 155, 0.5)"" name="apa_code" placeholder="Código APA: APAXXXXXXXX ou GT"
+            <input autocomplete="off" autofocus class="form-control text-center mx-auto" style="width: 310px; background-color: rgb(46, 133, 192)" name="apa_code" placeholder="Código APA: APAXXXXXXXX ou GT"
                 type="text">
         </div>
         <div class="col-auto">
-            <input autocomplete="off" class="form-control text-center mx-auto" style="width: 700px; background-color: rgba(20, 125, 155, 0.5)" name="nome_estab" placeholder="Designação completa" type="text">
+            <input autocomplete="off" class="form-control text-center mx-auto" style="width: 700px; background-color:  rgb(46, 133, 192)" name="nome_estab" placeholder="Designação completa" type="text">
         </div>
         <div class="col-auto">
-            <input autocomplete="off" class="form-control text-center mx-auto w-auto" style ="background-color: rgba(20, 125, 155, 0.5)" name="nome_estab_curto" placeholder="Designação curta" type="text">
+            <input autocomplete="off" class="form-control text-center mx-auto w-auto" style ="background-color:  rgb(46, 133, 192)" name="nome_estab_curto" placeholder="Designação curta" type="text">
         </div>
     </div>
     <br>
-    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Gravar</button>
+    <button class="form-control text-white fw-bold mx-auto w-auto" style="background-color: rgb(49,39,131);" type="submit">Gravar</button>
     <br>
 </form>
 <br>
@@ -60,7 +60,7 @@ Estabelecimentos
                 </form>
             </td>
             <td>
-                <button class="delet_edit_bttn" style="background-color: lightblue; color: black" onclick="showEditForm('{{ row.apa_code }}')">Editar</button>
+                <button class="delet_edit_bttn" style="background-color: rgb(46, 133, 192); color: white" onclick="showEditForm('{{ row.apa_code }}')">Editar</button>
                 <form id="showForm{{ row.apa_code }}" action="/edit_establishments" method="post" style="display: none;">
                     <div>
                         <input name="antigo_apa" type="hidden" value="{{ row.apa_code }}">
@@ -82,7 +82,7 @@ Estabelecimentos
                         <input name="nova_design_curta" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{ row.contract_short }}" type = "text">
                     </div>
                     <br>
-                    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Aplicar alterações</button>
+                    <button class="form-control text-white fw-bold mx-auto w-auto" style="background-color: rgb(49,39,131);" type="submit">Aplicar alterações</button>
                 </form>
             </td>
         </tr>

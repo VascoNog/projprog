@@ -11,16 +11,16 @@ Insert
 <form action="/insert" method="post">
     <div class="row">
         <div class="form-control mx-auto w-auto ">
-            <p class="text-white text-center bg-dark"> Data </p>
+            <p class="text-white text-center bg-darkblue"> Data </p>
             <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="data" type="date">
         </div>
         <div class="form-control mx-auto w-auto">
-            <p class="text-white text-center bg-dark"> N.º e-GAR </p>
+            <p class="text-white text-center bg-darkblue"> N.º e-GAR </p>
             <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="egar" placeholder="número e-GAR"
                 type="text">
         </div>
         <div class="form-control mx-auto w-auto">
-            <p class="text-white text-center bg-dark"> Obra </p>
+            <p class="text-white text-center bg-darkblue"> Obra </p>
             <select name="obra" class="form-control text-center mx-auto w-auto" >
                 {% for obra in obras %}
                 <option value="{{obra}}">{{obra}}</option>
@@ -32,7 +32,7 @@ Insert
             </select>
         </div>
         <div class="form-control mx-auto w-auto">
-            <p class="text-white text-center bg-dark"> Transportador </p>
+            <p class="text-white text-center bg-darkblue"> Transportador </p>
             <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="transp"
                 placeholder="nome transportador" type="text">
             <input autocomplete="off" class="form-control text-center  mx-auto w-auto" name="nif_transp"
@@ -45,7 +45,7 @@ Insert
     <br>
     <div class="row">
         <div class="form-control mx-auto w-auto">
-            <p class="text-white text-center bg-dark"> LER, tonelagem e destino final </p>
+            <p class="text-white text-center bg-darkblue"> LER, tonelagem e destino final </p>
             <select name="codLER" class="form-control mx-auto w-auto" >
                 {% for codLER in todos_codLer %}
                 <option value="{{codLER}}">{{codLER}}</option>
@@ -60,7 +60,7 @@ Insert
             </select>
         </div>
         <div class="form-control mx-auto w-auto">
-            <p class="text-white text-center bg-dark"> Destinatário </p>
+            <p class="text-white text-center bg-darkblue"> Destinatário </p>
             <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="dest"
             placeholder="nome destinatário" type="text">
             <input autocomplete="off" class="form-control text-center mx-auto w-auto" name="apa_dest"
@@ -69,7 +69,7 @@ Insert
             placeholder="NIF destinatário" type="number" min="99999999" max="999999999">
         </div>
         <div class="form-control mx-auto w-auto">
-            <p class="text-white text-center bg-dark"> Produtor do resíduo </p>
+            <p class="text-white text-center bg-darkblue"> Produtor do resíduo </p>
             <select name="produtor" class="form-control text-center mx-auto w-auto">
                 {% for produtor in produtores %}
                 <option value="{{produtor}}">{{produtor}}</option>
@@ -79,6 +79,6 @@ Insert
         </div>  
     </div>
     <br>
-    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Submeter</button>
+    <button class="form-control text-white fw-bold mx-auto w-auto" style="background-color: rgb(49,39,131);" type="submit">Submeter</button>
 </form>
 {% endblock %}

@@ -6,19 +6,19 @@ LER
 
 {% block main %}
 <br>
-<p class="display-6 text-center"> INSERIR NOVO CÓDIGO LER</p>
+<p class="display-6 text-center"> INSERIR NOVO LER</p>
 <br>
 <form action="/codler_description" method="post">
     <div class="row justify-content-center">
         <div class="col-auto">
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto" style="width: 310px; background-color: rgba(20, 125, 155, 0.5)" name="codLER" placeholder="LER (no formato XX XX XX ou XXXXXX)" type="text">
+            <input autocomplete="off" autofocus class="form-control text-center mx-auto" style="width: 310px; background-color: rgb(46, 133, 192)" name="codLER" placeholder="LER (no formato XX XX XX ou XXXXXX)" type="text">
         </div>
         <div class="col-auto">
-            <input autocomplete="off" class="form-control text-center mx-auto w-auto" style="background-color: rgba(20, 125, 155, 0.5)" name="description" placeholder="Descrição LER" type="text">
+            <input autocomplete="off" class="form-control text-center mx-auto" style="width: 1000px; background-color: rgb(46, 133, 192)" name="description" placeholder="Descrição LER" type="text">
         </div>
     </div>
     <br>
-    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Gravar</button>
+    <button class="form-control text-white fw-bold mx-auto w-auto" style="background-color: rgb(49, 39, 131)" type="submit">Gravar</button>
     <br>
 </form>
 
@@ -35,7 +35,7 @@ LER
             <td>{{ row.codLER }}</td>
             <td>{{ row.description }}</td>
             <td>
-                <button class="delet_edit_bttn" style="background-color: tomato; color: whitesmoke" onclick="showConfirmDelete('{{ row.codLER }}')">Apagar</button>
+                <button class="delet_edit_bttn" style="background-color: tomato; color: white" onclick="showConfirmDelete('{{ row.codLER }}')">Apagar</button>
                 <form id="deleteLER{{ row.codLER }}" action="/delete" method="post" style="display: none;">
                     <div>
                         <input name="codLER" type="hidden" value="{{ row.codLER }}">
@@ -53,7 +53,7 @@ LER
                 </form>
             </td>
             <td>
-                <button class="delet_edit_bttn" style="background-color: lightblue; color: black" onclick="showEditForm('{{ row.codLER }}')">Editar</button>
+                <button class="delet_edit_bttn" style="background-color: rgb(46, 133, 192); color: white" onclick="showEditForm('{{ row.codLER }}')">Editar</button>
                 <form id="showForm{{ row.codLER }}" action="/edit_codler_description" method="post" style="display: none;">
                     <div>
                         <input name="antigo_codLER" value="{{ row.codLER }}" type = "hidden">
@@ -66,7 +66,7 @@ LER
                         <input name="nova_descrição" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{ row.description }}" type = "text">
                     </div>
                     <br>
-                    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Aplicar alterações</button>
+                    <button class="form-control text-white fw-bold mx-auto w-auto" style="background-color: rgb(49, 39, 131)" type="submit">Aplicar alterações</button>
                 </form>
             </td>
         </tr>

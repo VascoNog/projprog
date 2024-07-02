@@ -12,15 +12,15 @@ Operations
 <form action="/operation_description" method="post">
     <div class="row justify-content-center">
         <div class="col-auto">
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto" style="width: 400px; background-color: rgba(20, 125, 155, 0.5)" name="operation" placeholder="Operação de valorização/eliminação - Destino Final"
+            <input autocomplete="off" autofocus class="form-control text-center mx-auto" style="width: 400px; background-color:  rgb(46, 133, 192)"  name="operation" placeholder="Operação de valorização/eliminação - Destino Final"
             type="text">
         </div>
         <div class="col-auto">
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto" style="width: 1000px; background-color: rgba(20, 125, 155, 0.5)" name="description" placeholder="Descrição da operação de valorização/eliminação - Destino Final" type="text">
+            <input autocomplete="off" class="form-control text-center mx-auto" style="width: 1000px; background-color: rgb(46, 133, 192)"  name="description" placeholder="Descrição da operação de valorização/eliminação - Destino Final" type="text">
         </div>
     </div>
     <br>
-    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Gravar</button>
+    <button class="form-control text-white fw-bold mx-auto w-auto" style="background-color: rgb(49, 39, 131)" type="submit">Gravar</button>
     <br>
 </form>
 
@@ -55,7 +55,7 @@ Operations
                 </form>
             </td>
             <td>
-                <button class="delet_edit_bttn" style="background-color: lightblue; color: black" onclick="showEditForm('{{ row.operation }}')">Editar</button>
+                <button class="delet_edit_bttn" style="background-color: rgb(46, 133, 192); color: white" onclick="showEditForm('{{ row.operation }}')">Editar</button>
                 <form id="showForm{{ row.operation }}" action="/edit_operation_description" method="post" style="display: none;">
                     <div>
                         <input name="antiga_operação" value="{{ row.operation }}" type = "hidden">
@@ -68,7 +68,7 @@ Operations
                         <input name="nova_descrição" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{ row.description }}" type = "text">
                     </div>
                     <br>
-                    <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Aplicar alterações</button>
+                    <button class="form-control text-white fw-bold mx-auto w-auto" style="background-color: rgb(49, 39, 131)" type="submit">Aplicar alterações</button>
                 </form>
             </td>
         </tr>

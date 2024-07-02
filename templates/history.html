@@ -45,12 +45,12 @@ History
         </div>
     </div>
     <br>
-    <button class="form-control text-white fw-bold bg-primary" style="width: auto; margin-right: auto; margin-left: 0;" type="submit">Aplicar</button>
+    <button class="form-control text-white fw-bold"  style="background-color: rgb(49,39,131); width: auto; margin-right: auto; margin-left: 0;" type="submit">Aplicar</button>
     <br>
 </form>
 
 
-<table id="tableId" style="width:100%">
+<table id="history_table" style="width:100%">
     <thead>
         <tr>
             <th>Data</th>
@@ -114,7 +114,7 @@ History
                 </form>
             </td>
             <td>
-                <button class="delet_edit_bttn" style="background-color: lightblue; color: black" onclick="showEditForm('{{ row.id }}')">Editar</button>
+                <button class="delet_edit_bttn" style="background-color: rgb(46, 133, 192); color: white" onclick="showEditForm('{{ row.id }}')">Editar</button>
                 <form id="showForm{{row.id}}" action="/edit_egar" method="post" style="display: none;">
                     <div>
                         <input name="row_id" type="hidden" value="{{ row.id }}">
@@ -220,7 +220,7 @@ History
 
     // Preparing for the Excel
     function exportTableToExcel() {
-        const table = document.getElementById('tableId');
+        const table = document.getElementById('history_table');
         const tableToExport = table.cloneNode(true);
 
         // Remove the last two columns (Apagar and Editar) from the cloned table

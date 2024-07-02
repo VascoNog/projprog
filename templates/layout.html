@@ -26,29 +26,31 @@
         <nav>
             <div>
                 <div>
-                    {% if session["user_id"] %}
                     
-                    <nav class="navbar navbar-dark bg-dark">
-                        <a class="navbar-brand" href="/establishments">ESTABELECIMENTOS</a>
+                    {% if session["user_id"] %}
+                    <nav class="navbar navbar-dark bg-light-gray">
+                        <img src="{{ url_for('static', filename='wastimizerLogo.png') }}" alt="Logo" width="300">
+                        <a class="navbar-brand" href="/establishments">Estabelecimentos</a>
                         <a class="navbar-brand" href="/codler_description">LER</a>
-                        <a class="navbar-brand" href="/operation_description">OPERAÇÕES (DEST. FINAIS)</a>
-                        <a class="navbar-brand" href="/insert">INSERIR e-GAR's</a>
-                        <a class="navbar-brand" href="/history">MAPA</a>
+                        <a class="navbar-brand" href="/operation_description">Operações</a>
+                        <a class="navbar-brand" href="/insert">Inserir e-GAR's</a>
+                        <a class="navbar-brand" href="/history">Mapa</a>
                         <a class="navbar-brand" href="/mirr">MIRR</a>
-                        <a class="navbar-brand text-danger" href="/logout">LOGOUT</a>
+                        <a class="navbar-brand logout" href="/logout">Logout</a>
                     </nav>
                     {% else %}
-                    <nav class="navbar navbar-dark bg-dark">
+                    <nav class="navbar navbar-dark">
                         <div class="d-flex justify-content-end w-100">
-                            <a class="navbar-brand text-success" href="/register">REGISTO</a>
-                            <a class="navbar-brand text-success" href="/login">LOGIN</a>
+                            <a class="navbar-brand registerlogin" href="/register">Registo</a>
+                            <a class="navbar-brand registerlogin" href="/login">Login</a>
                         </div>
                     </nav>
+                    <img src="{{ url_for('static', filename='wastimizerLogo.png') }}" class="mx-auto d-block" alt="Logo" width="500">
                     
                     {% endif %}
                 </div>
             </div>
-        </nav>
+        </nav> 
         {% if get_flashed_messages() %}
         <header>
             <!-- <div class="alert alert-primary mb-0 text-center" role="alert"> -->

@@ -5,17 +5,23 @@
 {% endblock %}
 
 {% block main %}
-<h2>Registo</h2>
-    <form action="/register" method="post">
-        <div>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="username" placeholder="Nome de utilizador" type="text">
+<br>
+<p class="display-6 text-center"> REGISTO </p>
+<br>
+    <form action="/login" method="post">
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" style="background-color:  rgb(46, 133, 192)" name="username" placeholder="Nome de utilizador" type="text">
+            </div>
+            <div class="col-auto">
+                <input autocomplete="off" class="form-control text-center mx-auto w-auto" style="background-color:  rgb(46, 133, 192)"  name="password" placeholder="Palavra-passe" type="password">
+            </div>
+            <div class="col-auto">
+                <input autocomplete="off" class="form-control text-center mx-auto w-auto" style="background-color:  rgb(46, 133, 192)" name="confirmation" placeholder="Confirmar palavra-passe" type="password">
+            </div>
         </div>
-        <div>
-            <input name="password" placeholder="Palavra-passe" type="password">
-        </div>
-        <div>
-            <input name="confirmation" placeholder="Confirmar palavra-passe" type="password">
-        </div>
-        <button type="submit">Registar</button>
+        <br>
+        <button class="form-control text-white fw-bold mx-auto w-auto" style="background-color: rgb(49,39,131)" type="submit">Registo</button>
+        <br>
     </form>
 {% endblock %}

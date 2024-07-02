@@ -5,21 +5,20 @@ Login
 {% endblock %}
 
 {% block main %}
-<br></br>
+<br>
 <p class="display-6 text-center"> LOGIN </p>
-<br></br>
+<br>
     <form action="/login" method="post">
-        <div>
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="username" placeholder="Nome de utilizador" type="text">
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" style="background-color:  rgb(46, 133, 192)" name="username" placeholder="Nome de utilizador" type="text">
+            </div>
+            <div class="col-auto">
+                <input autocomplete="off" class="form-control text-center mx-auto w-auto" style="background-color:  rgb(46, 133, 192)" name="password" placeholder="Palavra-passe" type="password">
+            </div>
         </div>
-        <div>
-            <input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="password" placeholder="Palavra-passe" type="password">
-        </div>
-        <br></br>
-        <button class="form-control text-white fw-bold mx-auto w-auto bg-primary" type="submit">Entrar</button>
+        <br>
+        <button class="form-control text-white fw-bold mx-auto w-auto" style="background-color: rgb(49,39,131);" type="submit">Entrar</button>
+        <br>
     </form>
 {% endblock %}
-
-
-<input autocomplete="off" autofocus class="form-control text-center mx-auto w-auto" name="ton" placeholder="qtd(ton.)"
-type="number" min="0.001" step="0.001">

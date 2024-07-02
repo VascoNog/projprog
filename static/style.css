@@ -1,18 +1,44 @@
-/* Estilo quando o mouse passa por cima */
-nav .navbar-brand:hover {
-    color: rgb(25, 130, 205); /* Texto muda para azul*/
+nav .navbar-brand {
+    font-size: 25px; /* Tamanho de fonte personalizado */
+    color: rgb(175, 175, 175);
+    /* font-weight: bold; */
 }
 
-nav .navbar-brand {
-    font-size: 15px; /* Tamanho de fonte personalizado */
+/* Estilo quando o rato passa por cima */
+nav .navbar-brand:hover {
+    color: rgb(49, 39, 131); /* Texto muda para azul claro*/
+}
+
+.navbar-brand.logout{
+    font-size: 20px; /* Tamanho de fonte personalizado */
+    color: grey;
+    font-style: italic;
+    font-weight: bold;
+}
+
+/* Estilo quando o rato passa por cima de "logout" */
+nav .navbar-brand.logout:hover {
+    color: tomato; /* Texto muda para azul claro*/
+}
+
+/* Estilo dos "botões" de registo e login */
+.navbar-brand.registerlogin{
+    font-size: 25px; /* Tamanho de fonte personalizado */
+    font-style: italic;
+    font-weight: bold;
+}
+
+
+nav .bg-light-gray {
+    background-color: lightgray; /* Cinza claro */
 }
 
 .body_layout {
-    background-color: #fdf3e4;
+    background-color: #fdf3e4; /*Cor beige background  */
 }
 
 .inputsForms {
-    background-color: rgba(20, 125, 155, 0.5);
+    background-color: rgb(46, 133, 192);
 }
 
 .exportTableToExcelButton{
@@ -36,3 +62,38 @@ nav .navbar-brand {
     border: none;
     border-radius: 10px; /* Arredondar vértices do botão */
 }
+
+
+.bg-darkblue{
+    background-color: rgb(49, 39, 131);
+}
+
+/* Tables */
+
+
+
+/* ESTUDAR ESTA PARTE: */
+
+/* History table */
+#history_table {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  #history_table td, #history_table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  #history_table tr:nth-child(even){background-color: #f2f4f2;}
+  
+  #history_table tr:hover {background-color: #ddd;}
+  
+  #history_table th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #04AA6D;
+    color: white;
+  }
