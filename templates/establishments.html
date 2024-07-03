@@ -27,7 +27,7 @@ Estabelecimentos
 </form>
 <br>
 
-<table style="width:100%">
+<table id="input_tables" style="width:100%">
     <thead>
         <tr>
             <th>APA do estabelecimento</th>
@@ -73,13 +73,13 @@ Estabelecimentos
                     </div>
                     <br>
                     <div>
-                        <input name="novo_apa" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{ row.apa_code }}" type = "text">
+                        <input name="novo_apa" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{ row.apa_code }}" type = "text">
                     </div>
                     <div>
-                        <input name="nova_design_longa" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{ row.contract_full }}" type = "text">
+                        <input name="nova_design_longa" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{ row.contract_full }}" type = "text">
                     </div>
                     <div>
-                        <input name="nova_design_curta" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black"  value="{{ row.contract_short }}" type = "text">
+                        <input name="nova_design_curta" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{ row.contract_short }}" type = "text">
                     </div>
                     <br>
                     <button class="form-control text-white fw-bold mx-auto w-auto" style="background-color: rgb(49,39,131);" type="submit">Aplicar alterações</button>

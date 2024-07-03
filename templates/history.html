@@ -50,8 +50,11 @@ History
 </form>
 
 
-<table id="history_table" style="width:100%">
+<table id="output_tables" style="width:100%">
     <thead>
+        <tr>
+            <th class="fw-bold" style="color: rgb(49,39,131); font-size: 25px;" colspan="16">Mapa de Gestão de Resíduos Produzidos</th>
+        </tr>
         <tr>
             <th>Data</th>
             <th>N.º e-GAR</th>
@@ -220,7 +223,7 @@ History
 
     // Preparing for the Excel
     function exportTableToExcel() {
-        const table = document.getElementById('history_table');
+        const table = document.getElementById('output_tables');
         const tableToExport = table.cloneNode(true);
 
         // Remove the last two columns (Apagar and Editar) from the cloned table

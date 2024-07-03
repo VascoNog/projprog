@@ -71,29 +71,76 @@ nav .bg-light-gray {
 /* Tables */
 
 
+ /* INPUT TABLES */
+ /* GARANTIR A DISPONIBILIDADE DE VÁRIOS TIPOS DE LETRA, CONSOANTE O BROWSER */
 
-/* ESTUDAR ESTA PARTE: */
-
-/* History table */
-#history_table {
+#input_tables {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
   }
   
-  #history_table td, #history_table th {
-    border: 1px solid #ddd;
+#input_tables td, #input_tables th {
     padding: 8px;
-  }
-  
-  #history_table tr:nth-child(even){background-color: #f2f4f2;}
-  
-  #history_table tr:hover {background-color: #ddd;}
-  
-  #history_table th {
     padding-top: 12px;
     padding-bottom: 12px;
-    text-align: left;
-    background-color: #04AA6D;
-    color: white;
+    font-size: 15px;
+    text-align: center;
+    font-weight: bold;
+}
+
+#input_tables th {
+    font-size: 20px;
+    color: rgb(49, 39, 131);
+}
+  
+#input_tables td {
+    font-size: 15px;
+    color: black;
+  } 
+    
+#input_tables tr:hover td {
+    background-color: lightcyan;
+}
+  
+
+/* OUTPUT TABLES - HISTORY AND MIRR TABLES */
+#output_tables_titles{
+    font-size: 20px;
+}
+
+#output_tables {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
   }
+  
+#output_tables td, #output_tables th {
+    border: 1px solid grey;
+    padding: 8px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    font-size: 12px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  #output_tables th {
+    font-size: 14px;
+    color: white;
+    background-color: gray;
+}
+  
+  #output_tables td {
+    font-size: 12px;
+    color: black;
+  } 
+  
+#output_tables tr:nth-child(even){
+    background-color: lightgray;
+}
+  
+#output_tables tr:hover td {
+    background-color: lightcyan;
+}
+  

@@ -42,10 +42,10 @@ MIRR
 </form>
 
 
-<table id="tableId" style="width:100%">
+<table id="output_tables" style="width:100%">
     <thead>
         <tr>
-            <th colspan="10">MIRR</th>
+            <th class="fw-bold" style="color: rgb(49,39,131); font-size: 25px;" colspan="10">Mapa Integrado de Registo de Resíduos (MIRR)</th>
         </tr>
         <tr>
             <th>LER</th>
@@ -80,7 +80,7 @@ MIRR
 
 <script>
     function exportTableToExcel(){
-        const tableToExport = document.getElementById('tableId')
+        const tableToExport = document.getElementById('output_tables')
         const workbook = XLSX.utils.table_to_book(tableToExport);
         XLSX.writeFile(workbook,"MIRR_obra_xxxx_dd-mm-aaaa.xlsx");
     }
