@@ -43,17 +43,20 @@ def login():
     if request.method == "POST":
         # Ensure username was submitted
         if not request.form.get("username"):
-            return apology("Faltou o nome do user", 403)
+            return apology("Faltou o nome do user", 401)
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return apology("Faltou a palavra-passe", 403)
-
-        # Creating users table
-        # CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, username TEXT NOT NULL UNIQUE, hash TEXT NOT NULL);
+            return apology("Faltou a palavra-passe", 401)
 
         # Query database for username
-        users_db = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        users_db = db.execute("""
+        SELECT
+            *
+        FROM
+            users
+        WHERE
+            username = ?""", request.form.get("username"))
 
         # Ensure username exists and password is correct
         if len(users_db) != 1 or not check_password_hash(users_db[0]["hash"], request.form.get("password")):
@@ -92,16 +95,16 @@ def register():
         # dealing with the case of the user clicking
         # on the “register” button without filling in the inputs
         if not username and not password and not confirmation:
-            return apology("Deve escolher um nome de utilizador, uma palavra-passe e confirmar", 403)
+            return apology("Deve escolher um nome de utilizador, uma palavra-passe e confirmar", 400)
 
         if not username:
-            return apology("Deve escolher um nome de utilizador", 403)
+            return apology("Deve escolher um nome de utilizador", 400)
 
         if not password:
-            return apology("Deve escolher uma palavra-passe", 403)
+            return apology("Deve escolher uma palavra-passe", 400)
 
         if not confirmation:
-            return apology("Deve confirmar a palavra-passe escolhida", 403)
+            return apology("Deve confirmar a palavra-passe escolhida", 400)
 
         # If all 3 inputs are met
         if password != confirmation:
@@ -110,14 +113,16 @@ def register():
         hashed_password = generate_password_hash(password)
 
         try:
-            new_user = db.execute("INSERT INTO users (username, hash) VALUES(?,?)", username, hashed_password)
+            new_user = db.execute("""
+            INSERT INTO
+                users (username, hash) VALUES(?,?)
+            """,username, hashed_password)
         except:
             # table users: username TEXT NOT NULL UNIQUE
             return apology("Desculpe, o nome de utilizador que escolheu já se encontra em uso")
 
         session["user_id"] = new_user
-        # in login: session["user_id"] = rows[0]["id"]
-
+        
         return redirect('/')
 
     else:
@@ -129,31 +134,32 @@ def register():
 def insert():
 
     if request.method == "GET":
-        contracts = db.execute("SELECT contract_short FROM apa_code_contract\
-            ORDER BY contract_short ASC")
-        codes_LER = db.execute("SELECT codLER FROM codler_description\
-            ORDER BY codLER ASC")
-        operations = db.execute("SELECT * FROM operation_description\
-            ORDER BY operation DESC")
-        producers = db.execute("SELECT username FROM users")
+        contracts = db.execute("""
+        SELECT
+            contract_short FROM apa_code_contract
+        ORDER BY
+            contract_short ASC""")
         
-        # pré-preencher os vários parâmetros a partir da última e-GAR inserida
-        # pre_fill = db.execute("""
-        #     SELECT *
-        #     FROM
-        #         wastemap
-        #     WHERE
-        #         empresa_id = ?
-        #     ORDER BY
-        #         id DESC
-        #     LIMIT 1
-        #     """, session["user_id"])
-        # if not pre_fill:
-        #     return apology("Não existem e-GAR's inseridas no sistema")
+        codes_LER = db.execute("""
+        SELECT
+            codLER FROM codler_description
+        ORDER BY
+            codLER ASC""")
         
-        # print("PRE-FILL: ", pre_fill)
+        operations = db.execute("""
+        SELECT
+            *
+        FROM
+            operation_description
+        ORDER BY
+            operation DESC""")
         
-        
+        producers = db.execute("""
+        SELECT
+            username
+        FROM
+            users""")
+       
         return render_template("insert.html",
             obras = [contract["contract_short"]for contract in contracts],
             todos_codLer = [codLER["codLER"] for codLER in codes_LER],
@@ -211,16 +217,30 @@ def insert():
         if apa_associado == 'GT':
             apa_estab = 'GT'
         elif apa_associado == 'estab':
-            apa_estab_db = db.execute("SELECT apa_code FROM apa_code_contract\
-                WHERE contract_short = ?", obra)
+            apa_estab_db = db.execute("""
+            SELECT
+                apa_code
+            FROM
+                apa_code_contract
+            WHERE
+                contract_short = ?
+            """, obra)
+    
             apa_estab = apa_estab_db[0]["apa_code"]
+            
         else:
             return apology ("APA do produtor incorreto")
 
         # Encontrar designação do resíduo a partir de codLER
 
-        residuo_db = db.execute("SELECT description FROM codler_description\
-            WHERE codLER = ?", codLER)
+        residuo_db = db.execute("""
+        SELECT
+            description
+        FROM
+            codler_description
+        WHERE codLER = ?
+        """, codLER)
+        
         residuo = residuo_db[0]["description"]
 
         # Parametro que pode faltar
@@ -228,15 +248,25 @@ def insert():
             apa_transp = "--"
 
         # Evitar duplicação de e-GAR's:
-        egar_in_wastemap = db.execute("SELECT * FROM wastemap WHERE wastemap.egar = ?", egar)
+        egar_in_wastemap = db.execute("""
+        SELECT
+            *
+        FROM
+            wastemap
+        WHERE
+            wastemap.egar = ?
+        """, egar)
+        
         if egar_in_wastemap:
-            return apology(f"Uma e-GAR com o número {egar} já tinha sido submetida anteriormente, verifique no Mapa",403)
+            flash(f"Uma e-GAR com o número {egar} já tinha sido submetida anteriormente, verifique no Mapa")
+            return redirect("/insert")
 
         # Inserir todos os parâmetros da e-GAR na tabela wastemap
-        db.execute(
-            "INSERT INTO wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,empresa_id)\
-                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,session["user_id"])
+        db.execute("""
+        INSERT INTO
+            wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,empresa_id)\
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        """,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,session["user_id"])
         
         return redirect('/insert')
         
@@ -248,23 +278,23 @@ def insert():
 def history():
 
     contracts = db.execute("""
-        SELECT
-            contract_short
-        FROM
-            apa_code_contract
-        ORDER BY
-            contract_short ASC""")
-
+    SELECT
+        contract_short
+    FROM
+        apa_code_contract
+    ORDER BY
+        contract_short ASC""")
+                           
     years = db.execute("""
-        SELECT DISTINCT
-            strftime('%Y', data) AS year
-        FROM
-            wastemap
-        WHERE
-            dest_final != 'AP' AND empresa_id = ? AND strftime('%Y', data) != 'None'
-        ORDER BY
-            strftime('%Y', data) DESC
-        """, session["user_id"])
+    SELECT DISTINCT
+        strftime('%Y', data) AS year
+    FROM
+        wastemap
+    WHERE
+        dest_final != 'AP' AND empresa_id = ? AND strftime('%Y', data) != 'None'
+    ORDER BY
+        strftime('%Y', data) DESC
+    """, session["user_id"])
 
     if request.method == "GET":
 
@@ -281,129 +311,136 @@ def history():
         if ligar_egars == "NA":
             if obra == "todas" and ano == "todos":
                 map = db.execute("""
-                    SELECT
-                        id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
-                    FROM 
-                        wastemap 
-                    WHERE
-                        wastemap.empresa_id = ?
-                    ORDER BY
-                        data ASC""",session["user_id"])
+                SELECT
+                    id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
+                FROM 
+                    wastemap 
+                WHERE
+                    wastemap.empresa_id = ?
+                ORDER BY
+                    data ASC
+                """,session["user_id"])
 
             elif obra != "todas" and ano == "todos":
                 map = db.execute("""
-                    SELECT
-                        id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
-                    FROM 
-                        wastemap 
-                    WHERE
-                        wastemap.empresa_id = ? AND obra = ?
-                    ORDER BY
-                        data ASC""",session["user_id"],obra)
+                SELECT
+                    id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
+                FROM 
+                    wastemap 
+                WHERE
+                    wastemap.empresa_id = ? AND obra = ?
+                ORDER BY
+                    data ASC
+                """,session["user_id"],obra)
 
             elif obra == "todas" and ano != "todos":
                 map = db.execute("""
-                    SELECT 
-                        id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
-                    FROM 
-                        wastemap    
-                    WHERE 
-                        wastemap.empresa_id = ? AND strftime('%Y', data) = ?
-                    ORDER BY 
-                        data ASC""",session["user_id"],ano)
+                SELECT 
+                    id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
+                FROM 
+                    wastemap    
+                WHERE 
+                    wastemap.empresa_id = ? AND strftime('%Y', data) = ?
+                ORDER BY 
+                    data ASC
+                """,session["user_id"],ano)
 
             # obra != "todas" and ano != "todos":
             else:
                 map = db.execute("""
-                    SELECT
-                        id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
-                    FROM
-                        wastemap
-                    WHERE
-                        wastemap.empresa_id = ? AND obra = ? AND strftime('%Y', data) = ?
-                    ORDER BY
-                        data ASC""",session["user_id"],obra, ano)
+                SELECT
+                    id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
+                FROM
+                    wastemap
+                WHERE
+                    wastemap.empresa_id = ? AND obra = ? AND strftime('%Y', data) = ?
+                ORDER BY
+                    data ASC
+                """,session["user_id"],obra, ano)
 
         if ligar_egars == "Ligar":
 
             if obra == "todas" and ano == "todos":
                 map = db.execute("""
-                    SELECT
-                        id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
-                    FROM
-                        wastemap
-                    WHERE
-                        wastemap.empresa_id = ? AND (dest_final = 'AP' OR apa_estab = 'APA00055104')
-                    ORDER BY
-                        data ASC""",session["user_id"])
+                SELECT
+                    id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
+                FROM
+                    wastemap
+                WHERE
+                    wastemap.empresa_id = ? AND (dest_final = 'AP' OR apa_estab = 'APA00055104')
+                ORDER BY
+                    data ASC
+                """,session["user_id"])
 
             elif obra != "todas" and ano == "todos":
                 
                 map = db.execute("""
-                    SELECT
-                        id, data, egar, obra, apa_estab, transp, nif_transp, matricula, apa_transp, codLER, residuo, ton, dest_final, dest, nif_dest, apa_dest, produtor
-                    FROM
-                        wastemap
-                    WHERE
-                        wastemap.empresa_id = ? AND ((obra = ? AND dest_final = 'AP') OR apa_estab = 'APA00055104')
-                    ORDER BY
-                        data ASC
+                SELECT
+                    id, data, egar, obra, apa_estab, transp, nif_transp, matricula, apa_transp, codLER, residuo, ton, dest_final, dest, nif_dest, apa_dest, produtor
+                FROM
+                    wastemap
+                WHERE
+                    wastemap.empresa_id = ? AND ((obra = ? AND dest_final = 'AP') OR apa_estab = 'APA00055104')
+                ORDER BY
+                    data ASC
                 """, session["user_id"],obra)
 
 
             elif obra == "todas" and ano != "todos":
                 map = db.execute("""
-                    SELECT
-                        id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
-                    FROM 
-                        wastemap
-                    WHERE
-                        wastemap.empresa_id = ? AND (dest_final = 'AP' OR apa_estab = 'APA00055104') AND strftime('%Y', data) = ?
-                    ORDER BY
-                        data ASC
-                    """,session["user_id"],ano)
+                SELECT
+                    id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
+                FROM 
+                    wastemap
+                WHERE
+                    wastemap.empresa_id = ? AND (dest_final = 'AP' OR apa_estab = 'APA00055104') AND strftime('%Y', data) = ?
+                ORDER BY
+                    data ASC
+                """,session["user_id"],ano)
 
             # obra != "todas" and ano != "todos":
             else:
                 map = db.execute("""
-                    SELECT
-                        id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
-                    FROM
-                        wastemap
-                    WHERE
-                        wastemap.empresa_id = ? AND ((obra = ? AND dest_final = 'AP') OR apa_estab = 'APA00055104') AND strftime('%Y', data) = ?
-                    ORDER BY 
-                        data ASC""",session["user_id"],obra,ano)
+                SELECT
+                    id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
+                FROM
+                    wastemap
+                WHERE
+                    wastemap.empresa_id = ? AND ((obra = ? AND dest_final = 'AP') OR apa_estab = 'APA00055104') AND strftime('%Y', data) = ?
+                ORDER BY 
+                    data ASC
+                """,session["user_id"],obra,ano)
 
         # All the "Select" options:
         contracts = db.execute("""
-            SELECT 
-                contract_short 
-            FROM
-                apa_code_contract
-            ORDER BY 
-                contract_short ASC""")
+        SELECT 
+            contract_short 
+        FROM
+            apa_code_contract
+        ORDER BY 
+            contract_short ASC""")
         
         codes_LER = db.execute("""
-            SELECT
-                codLER
-            FROM
-                codler_description
-            ORDER BY
-                codLER ASC""")
+        SELECT
+            codLER
+        FROM
+            codler_description
+        ORDER BY
+            codLER ASC""")
         
         operations = db.execute("""
-            SELECT * 
-            FROM 
-                operation_description
-            ORDER BY 
-                operation DESC""")
+        SELECT
+            *
+        FROM 
+            operation_description
+        ORDER BY 
+            operation DESC""")
         
         producers = db.execute("""
-            SELECT
-                username
-            FROM
-                users""")
+        SELECT
+            username
+        FROM
+            users""")
 
         return render_template("history.html", map=map,
                                obras_mapeadas = [contract["contract_short"] for contract in contracts],
@@ -431,50 +468,65 @@ def delete():
 
     # history.html:
     if row_id_hist:
-        db.execute("DELETE FROM wastemap WHERE wastemap.id = ?\
-            AND wastemap.empresa_id = ?", row_id_hist, session["user_id"])
+        db.execute("""
+        DELETE FROM
+            wastemap WHERE wastemap.id = ? AND wastemap.empresa_id = ?
+        """, row_id_hist, session["user_id"])
 
         obra = request.form.get("obra")
-        map_exists = db.execute("SELECT * FROM wastemap WHERE obra = ?", obra)
+        map_exists = db.execute("""
+        SELECT
+            *
+        FROM
+            wastemap WHERE obra = ?
+        """, obra)
+        
         if map_exists:
-            map = db.execute(
-                "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
-                    codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest\
-                        FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
-                            ORDER BY data ASC",session["user_id"], obra)
+            map = db.execute("""
+            SELECT
+                id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest
+            FROM
+                wastemap
+            WHERE
+                wastemap.empresa_id = ? AND obra = ?
+            ORDER BY
+                data ASC
+            """,session["user_id"], obra)
             
             # All the "Select" options:
             contracts = db.execute("""
-                SELECT
-                    contract_short
-                FROM
-                    apa_code_contract
-                ORDER BY
-                    contract_short ASC""")
+            SELECT
+                contract_short
+            FROM
+                apa_code_contract
+            ORDER BY
+                contract_short ASC""")
             
             codes_LER = db.execute("""
-                SELECT
-                    codLER FROM codler_description
-                ORDER BY
-                    codLER ASC""")
+            SELECT
+                codLER FROM codler_description
+            ORDER BY
+                codLER ASC""")
             
             operations = db.execute("""
-                SELECT *
-                FROM
-                    operation_description
-                ORDER BY
-                    operation DESC""")
+            SELECT
+                *
+            FROM
+                operation_description
+            ORDER BY
+                operation DESC""")
             
             producers = db.execute("""
-                SELECT
-                    username
-                FROM
-                    users""")
+            SELECT
+                username
+            FROM
+                users""")
+            
             years = db.execute("""
-                SELECT DISTINCT
-                    strftime('%Y', data) AS year
-                FROM
-                    wastemap""")
+            SELECT DISTINCT
+                strftime('%Y', data) AS year
+            FROM
+                wastemap""")
 
             return render_template("history.html", map=map,
                                 obras_mapeadas = [contract["contract_short"] for contract in contracts],
@@ -486,31 +538,33 @@ def delete():
             return redirect("/history")
 
     # establishments.html:
-    print("ROW_ID_ESTAB: ", row_id_estab)
     if row_id_estab:
         db.execute("""
-            DELETE FROM 
-                apa_code_contract
-            WHERE
-                id = ?""", row_id_estab)
+        DELETE FROM 
+            apa_code_contract
+        WHERE
+            id = ?
+        """, row_id_estab)
         return redirect("/establishments")
 
     # codler_description.html:
     if codLER:
         db.execute("""
-            DELETE FROM
-                codler_description
-            WHERE
-                codLER = ?""", codLER)
+        DELETE FROM
+            codler_description
+        WHERE
+            codLER = ?
+        """, codLER)
         return redirect("/codler_description")
 
     # operation_description.html:
     if operation:
         db.execute("""
-            DELETE FROM
-                operation_description
-            WHERE
-                operation = ?""", operation)
+        DELETE FROM
+            operation_description
+        WHERE
+            operation = ?
+        """, operation)
         return redirect("/operation_description")
 
 
@@ -573,15 +627,25 @@ def edit_egar():
         if novo_apa_associado == 'GT':
             apa_estab = 'GT'
         elif novo_apa_associado == 'estab':
-            apa_estab_db = db.execute("SELECT apa_code FROM apa_code_contract\
-                WHERE contract_short = ?", nova_obra)
+            apa_estab_db = db.execute("""
+            SELECT
+                apa_code FROM apa_code_contract
+            WHERE
+                contract_short = ?
+            """, nova_obra)
             apa_estab = apa_estab_db[0]["apa_code"]
         else:
             return apology ("APA do produtor incorreto")
 
         # Encontrar nova designação do resíduo a partir de novo codLER
-        residuo_db = db.execute("SELECT description FROM codler_description\
-            WHERE codLER = ?", novo_codLER)
+        residuo_db = db.execute("""
+        SELECT
+            description
+        FROM
+            codler_description
+        WHERE
+            codLER = ?
+        """, novo_codLER)
         residuo = residuo_db[0]["description"]
 
         # Parametro que pode faltar
@@ -590,38 +654,73 @@ def edit_egar():
 
         # Eliminar a atual:
         if row_id:
-            db.execute("DELETE FROM wastemap WHERE wastemap.id = ?\
-                AND wastemap.empresa_id = ?", row_id, session["user_id"])
+            db.execute("""
+            DELETE FROM
+                wastemap WHERE wastemap.id = ? AND wastemap.empresa_id = ?
+            """,row_id, session["user_id"])
 
         # Evitar duplicação de e-GAR's:
-        egar_in_wastemap = db.execute("SELECT * FROM wastemap WHERE wastemap.egar = ?", nova_egar)
+        egar_in_wastemap = db.execute("""
+        SELECT
+            *
+        FROM
+            wastemap
+        WHERE
+            wastemap.egar = ?
+        """, nova_egar)
+        
         if egar_in_wastemap:
-            return apology(f"Uma e-GAR com o número {nova_egar} já tinha sido submetida anteriormente, verifique no Mapa",403)
-
-
-        # AVALIAR SE FAZ MAIS SENTIDO FAZER UPDATE AO INVÉS DE FAZER DELETE DA EGAR + NOVA INSERT
+            flash(f"Uma e-GAR com o número {nova_egar} já tinha sido submetida anteriormente, verifique no Mapa")
+            return redirect("/history")
 
         # Inserir todos os parâmetros da e-GAR na tabela wastemap
-        db.execute("INSERT INTO wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,empresa_id)\
-            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            nova_data,nova_egar,nova_obra,apa_estab,novo_transp,novo_nif_transp,nova_matricula,novo_apa_transp,novo_codLER,residuo,nova_ton,novo_dest_final,
-            novo_dest, novo_nif_dest,novo_apa_dest,novo_produtor,session["user_id"])
+        db.execute("""
+        INSERT INTO
+            wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,empresa_id)\
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        """,nova_data,nova_egar,nova_obra,apa_estab,novo_transp,novo_nif_transp,nova_matricula,novo_apa_transp,\
+            novo_codLER,residuo,nova_ton,novo_dest_final,novo_dest, novo_nif_dest,novo_apa_dest,novo_produtor,session["user_id"])
 
         # Mostrar o Mapa da obra (ou da nova obra) que sofreu edição:
-        map = db.execute(
-            "SELECT id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,\
-                codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor\
-                    FROM wastemap WHERE wastemap.empresa_id = ? AND obra = ?\
-                        ORDER BY data ASC",session["user_id"], nova_obra)
+        map = db.execute("""
+        SELECT 
+            id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
+        FROM
+            wastemap
+        WHERE
+            wastemap.empresa_id = ? AND obra = ?
+        ORDER BY
+            data ASC
+        """,session["user_id"], nova_obra)
 
         # Preparar formulário de edição sempre após a primeira e todas as seguintes edições
-        contracts = db.execute("SELECT contract_short FROM apa_code_contract\
-            ORDER BY contract_short ASC")
-        codes_LER = db.execute("SELECT codLER FROM codler_description\
-            ORDER BY codLER ASC")
-        operations = db.execute("SELECT * FROM operation_description\
-            ORDER BY operation DESC")
-        producers = db.execute("SELECT username FROM users")
+        contracts = db.execute("""
+        SELECT
+            contract_short FROM apa_code_contract
+        ORDER BY
+            contract_short ASC""")
+        
+        codes_LER = db.execute("""
+        SELECT
+            codLER
+        FROM
+            codler_description
+        ORDER BY
+            codLER ASC""")
+        
+        operations = db.execute("""
+        SELECT
+            *
+        FROM
+            operation_description
+        ORDER BY
+            operation DESC""")
+        
+        producers = db.execute("""
+        SELECT
+            username
+        FROM
+            users""")
 
         return render_template("history.html",
             map = map,
@@ -636,8 +735,13 @@ def edit_egar():
 def establishments():
 
     if request.method == "GET":
-        all_estab = db.execute("SELECT id,apa_code,contract_full,contract_short \
-            FROM apa_code_contract ORDER BY apa_code DESC")
+        all_estab = db.execute("""
+        SELECT 
+            id,apa_code,contract_full,contract_short
+        FROM
+            apa_code_contract
+        ORDER BY
+            apa_code DESC""")
 
         return render_template("establishments.html", all_estab=all_estab)
 
@@ -646,18 +750,31 @@ def establishments():
         nome_estab = request.form.get("nome_estab")
         nome_estab_curto = request.form.get("nome_estab_curto")
         if not apa_code:
-            return apology("Faltou o código APA", 403)
+            flash("Faltou o código APA")
+            return redirect("/establishments")
         if not nome_estab:
-            return apology("Faltou nome completo do estabelecimento/obra", 403)
+            flash("Faltou nome completo do estabelecimento/obra")
+            return redirect("/establishments")
         if not nome_estab_curto:
-            return apology("Faltou nome curto do estabelecimento/obra", 403)
+            flash("Faltou nome curto do estabelecimento/obra")
+            return redirect("/establishments")
+        
+        # Delete whitespace at the beginning and end of a string using strip() method
+        nome_estab = nome_estab.strip()
+        nome_estab_curto = nome_estab_curto.strip()
+        
 
         # Insert new establishment or contract. Ensure non-duplication of APA code, except for "GT"
         if apa_code != "GT" and apa_code[:3] != "APA":
             flash("Deve escrever um código APA que comece com 'APA' ou escrever 'GT' (referente a 'Geral Tecnorém')")
             return redirect("/establishments")
 
-        all_apa_codes = db.execute("SELECT apa_code FROM apa_code_contract")
+        all_apa_codes = db.execute("""
+        SELECT
+            apa_code
+        FROM
+            pa_code_contract""")
+        
         print("ALL APA CODES: ", all_apa_codes)
         if apa_code[:3] == "APA":
             for ac in all_apa_codes:
@@ -665,14 +782,34 @@ def establishments():
                     flash("Já existe um estabelecimento criado com esse código APA inserido")
                     return redirect("/establishments")
 
+        
+       # Avoid duplicating of the full and/or short name of the contractor
+        repetition_contract = db.execute("""
+        SELECT
+            *
+        FROM
+            apa_code_contract
+        WHERE
+            contract_full = ? OR contract_short = ?
+        """, nome_estab, nome_estab_curto)
+        if repetition_contract:
+            flash("Atenção, a designação (Completa ou Curta) da obra que tentou inserir já existe em sistema")
+            return redirect("/establishments")
+            
 
         #Insert a new establishment in database:
-        db.execute("INSERT INTO apa_code_contract (apa_code, contract_full,contract_short)\
-                VALUES(?,?,?)", apa_code,nome_estab,nome_estab_curto)
+        db.execute("""
+        INSERT INTO
+            apa_code_contract (apa_code, contract_full,contract_short) VALUES(?,?,?)""", apa_code,nome_estab,nome_estab_curto)
 
         # Show all establishments
-        all_estab = db.execute("SELECT id,apa_code,contract_full,contract_short \
-            FROM apa_code_contract ORDER BY apa_code DESC")
+        all_estab = db.execute("""
+        SELECT
+            id,apa_code,contract_full,contract_short
+        FROM
+            apa_code_contract
+        ORDER BY
+            apa_code DESC""")
         
         return render_template("establishments.html", all_estab=all_estab)
 
@@ -682,7 +819,7 @@ def establishments():
 def edit_establishments():
 
     if request.method == "GET":
-        return render_template("edit_establishments.html")
+        return render_template("establishments.html")
 
     else:
         antigo_apa = request.form.get("antigo_apa")
@@ -693,11 +830,18 @@ def edit_establishments():
         nova_design_curta = request.form.get("nova_design_curta")
 
         if not novo_apa:
-            return apology("Faltou APA")
+            flash("Faltou APA")
+            return redirect("/establishments")
         if not nova_design_longa:
-            return apology("Faltou nome longo do estabelecimento/obra")
+            flash("Faltou nome longo do estabelecimento/obra")
+            return redirect("/establishments")
         if not nova_design_curta:
-            return apology("Faltou nome curto do estabelecimento/obra")
+            flash("Faltou nome curto do estabelecimento/obra")
+            return redirect("/establishments")
+        
+        # Delete whitespace at the beginning and end of a string using strip() method
+        nova_design_longa = nova_design_longa.strip()
+        nova_design_curta = nova_design_curta.strip()
 
         # Insert new establishment or contract. Ensure non-duplication of APA code, except for "GT"
         if novo_apa != "GT" and novo_apa[:3] != "APA":
@@ -707,27 +851,62 @@ def edit_establishments():
         # Verificar se o novo APA não se encontra já inserido na base de dados:
         if novo_apa != antigo_apa:
             all_apa_codes = db.execute("SELECT apa_code FROM apa_code_contract")
-            print("ALL APA CODES EDIT ESTABLISHMENTS: ", all_apa_codes)
             if novo_apa[:3] == "APA":
                 for ac in all_apa_codes:
                     if ac["apa_code"] == novo_apa:
                         flash("Já existe um estabelecimento criado com esse código APA inserido")
                         return redirect("/establishments")
+        
+        # Avoid duplicating of the full and/or short name of the contractor
+        repetition_contract = db.execute("""
+        SELECT
+            apa_code
+        FROM
+            apa_code_contract
+        WHERE
+            contract_full = ? OR contract_short = ?
+        """, nova_design_longa, nova_design_curta)
+        
+        if repetition_contract:
+            repeated_apa_code_list = []
+            for estab in repetition_contract:
+                repeated_apa_code_list.append(estab['apa_code'])
+                if novo_apa not in repeated_apa_code_list:
+                    for apa in repeated_apa_code_list:
+                        flash(f"As alterações foram efetivadas, contudo pode existir um possível conflito com a(s) linha(s) do(s) seguinte(s) APA('s): {apa} - Corrija antes de avançar!")
+    
 
         # Realizar as alterações no estabelecimento/obra
-        db.execute("DELETE FROM apa_code_contract WHERE apa_code = ?\
-            AND contract_full = ?\
-                AND contract_short = ?", antigo_apa, antiga_design_longa, antiga_design_curta)
-        db.execute ("INSERT INTO apa_code_contract (apa_code,contract_full,contract_short)\
-            VALUES(?,?,?)", novo_apa, nova_design_longa, nova_design_curta)
+        db.execute("""
+        DELETE FROM
+            apa_code_contract
+        WHERE
+            apa_code = ? AND contract_full = ? AND contract_short = ?
+        """, antigo_apa, antiga_design_longa, antiga_design_curta)
+        
+        db.execute ("""
+        INSERT INTO
+            apa_code_contract (apa_code,contract_full,contract_short) VALUES(?,?,?)
+        """, novo_apa, nova_design_longa, nova_design_curta)
 
         # Show all establishments (after changes)
-        all_estab = db.execute("SELECT apa_code,contract_full,contract_short \
-            FROM apa_code_contract ORDER BY apa_code DESC")
+        all_estab = db.execute("""
+        SELECT
+            apa_code,contract_full,contract_short
+        FROM
+            apa_code_contract
+        ORDER BY
+            apa_code DESC""")
 
         # Atualizar wastemap: designação curta da obra e apa do estabelecimento
-        db.execute("UPDATE wastemap SET obra = ?, apa_estab = ?\
-            WHERE obra = ? AND apa_estab = ?",nova_design_curta,novo_apa,antiga_design_curta,antigo_apa)
+        db.execute("""
+        UPDATE 
+            wastemap
+        SET
+            obra = ?, apa_estab = ?
+        WHERE 
+            obra = ? AND apa_estab = ?
+        """,nova_design_curta,novo_apa,antiga_design_curta,antigo_apa)
 
         return render_template("establishments.html", all_estab=all_estab)
 
@@ -736,7 +915,11 @@ def edit_establishments():
 def codler_description():
 
     if request.method == "GET":
-        all_codLER = db.execute("SELECT * FROM codler_description")
+        all_codLER = db.execute("""
+        SELECT
+            * 
+        FROM
+            codler_description""")
 
         return render_template("codler_description.html", all_codLER=all_codLER)
 
@@ -745,30 +928,35 @@ def codler_description():
         description = request.form.get("description")
 
         if not codLER:
-            return apology("Faltou código LER", 403)
+            flash("Faltou código LER")
+            return redirect("/codler_description")
 
         codLER = format_codLER(codLER)
-        print("CODLER LINHA 484: ", codLER)
         if codLER == None:
-            return apology("O código LER inserido deve ter 6 dígitos no formato XX XX XX ou XXXXXX", 403)
+            flash("O código LER inserido deve ter 6 dígitos no formato XX XX XX ou XXXXXX")
+            return redirect("/codler_description")
 
         if not description:
-            return apology("Faltou descrição do código LER", 403)
+            flash("Faltou descrição do código LER")
+            return redirect("/codler_description")
 
         # Insert new code "LER" and description. Ensure non-duplication of code "LER"
         try:
-            db.execute("INSERT INTO codler_description (codLER, description)\
-                VALUES(?,?)", codLER, description)
+            db.execute("""
+            INSERT INTO
+                codler_description (codLER, description) VALUES(?,?)
+            """, codLER, description)
         except:
             # table codler_description: codLER TEXT NOT NULL UNIQUE
             flash("O código LER que tentou inserir já se encontra no sistema!")
             return redirect("/codler_description")
 
-        # INSERT INTO table_name (column_a, column_b)
-        # VALUES ("value_a", "value_b");
-
         # Show all codes "LER"
-        all_codLER = db.execute("SELECT * FROM codler_description")
+        all_codLER = db.execute("""
+        SELECT
+            * 
+        FROM
+            codler_description""")
 
         return render_template("codler_description.html", all_codLER=all_codLER)
 
@@ -785,27 +973,48 @@ def edit_codler_description():
         nova_descrição = request.form.get("nova_descrição")
 
         if not novo_codLER :
-            return apology("Faltou código LER", 403)
+            flash("Faltou código LER")
+            return redirect("/codler_description")
 
         novo_codLER = format_codLER(novo_codLER)
         if novo_codLER == None:
-            return apology("O código LER inserido deve ter 6 dígitos no formato XX XX XX ou XXXXXX", 403)
+            flash("O código LER inserido deve ter 6 dígitos no formato XX XX XX ou XXXXXX")
+            return redirect("/codler_description")
 
         if not nova_descrição:
-            return apology("Faltou descrição do código LER", 403)
+            flash("Faltou descrição do código LER")
+            return redirect("/codler_description")
 
         # Realizar as alterações na codLER_description table
-        db.execute("DELETE FROM codler_description WHERE codler = ?", antigo_codLER)
-        db.execute ("INSERT INTO codler_description (codLER,description)\
-            VALUES(?,?)", novo_codLER, nova_descrição)
+        db.execute("""
+        DELETE FROM
+            codler_description
+        WHERE
+            codler = ?""", antigo_codLER)
+        
+        db.execute ("""
+        INSERT INTO
+            codler_description (codLER,description) VALUES(?,?)
+        """, novo_codLER, nova_descrição)
 
         # Show all LER and descriptions (after changes)
-        all_codLER = db.execute("SELECT * FROM codler_description\
-            ORDER BY codLER DESC")
+        all_codLER = db.execute("""
+        SELECT
+            *
+        FROM
+            codler_description
+        ORDER BY
+            codLER DESC""")
 
         # Atualizar wastemap: código LER
-        db.execute("UPDATE wastemap SET codLER = ?,residuo = ?\
-            WHERE codLER = ?",novo_codLER, nova_descrição, antigo_codLER)
+        db.execute("""
+        UPDATE
+            wastemap
+        SET
+            codLER = ?,residuo = ?
+        WHERE
+            codLER = ?
+        """,novo_codLER, nova_descrição, antigo_codLER)
 
         return render_template("codler_description.html", all_codLER=all_codLER)
 
@@ -815,7 +1024,11 @@ def edit_codler_description():
 def operation_description():
 
     if request.method == "GET":
-        all_operations = db.execute("SELECT * FROM operation_description")
+        all_operations = db.execute("""
+        SELECT
+            * 
+        FROM
+            operation_description""")
 
         return render_template("operation_description.html", all_operations=all_operations)
 
@@ -824,22 +1037,30 @@ def operation_description():
         description = request.form.get("description")
 
         if not operation:
-            return apology("Faltou operação de valorização/eliminação", 403)
+            flash("Faltou operação de valorização/eliminação")
+            return redirect("/operation_description")
 
         if not description:
-            return apology("Faltou descrição da operação de valorização/eliminação", 403)
+            flash("Faltou descrição da operação de valorização/eliminação")
+            return redirect("/operation_description")
 
         # Insert new operation and description. Ensure non-duplication
         try:
-            db.execute("INSERT INTO operation_description (operation, description)\
-                VALUES(?,?)", operation, description)
+            db.execute("""
+            INSERT INTO
+                operation_description (operation, description) VALUES(?,?)
+            """, operation, description)
         except:
             # table operation_description: operation TEXT NOT NULL UNIQUE,
             flash("A operação de valorização/eliminação que tentou inserir já se encontra no sistema!")
             return redirect("/operation_description")
 
         # Show all operations
-        all_operations = db.execute("SELECT * FROM operation_description")
+        all_operations = db.execute("""
+        SELECT
+            *
+        FROM
+            operation_description""")
 
         return render_template("operation_description.html", all_operations=all_operations)
 
@@ -856,21 +1077,41 @@ def edit_operation_description():
         nova_descrição = request.form.get("nova_descrição")
 
         if not nova_operação :
-            return apology("Faltou operação de valorização/eliminação", 403)
+            flash("Faltou operação de valorização/eliminação")
+            return redirect("/operation_description")
         if not nova_descrição:
-            return apology("Faltou descrição da operação de valorização/eliminação", 403)
+            flash("Faltou descrição da operação de valorização/eliminação")
+            return redirect("/operation_description")
 
         # Realizar as alterações na operação de valorização/eliminação
-        db.execute("DELETE FROM operation_description WHERE operation = ?", antiga_operação)
-        db.execute ("INSERT INTO operation_description (operation,description) VALUES(?,?)", nova_operação, nova_descrição)
+        db.execute("""
+        DELETE FROM
+            operation_description WHERE operation = ?
+        """, antiga_operação)
+        
+        db.execute ("""
+        INSERT INTO
+            operation_description (operation,description) VALUES(?,?)
+        """, nova_operação, nova_descrição)
 
         # Show all operations (after changes)
-        all_operations = db.execute("SELECT * FROM operation_description\
-            ORDER BY operation DESC")
+        all_operations = db.execute("""
+        SELECT
+            *
+        FROM
+            operation_description
+        ORDER BY
+            operation DESC""")
 
         # Atualizar wastemap: operação
-        db.execute("UPDATE wastemap SET dest_final = ?\
-            WHERE dest_final = ?", nova_operação, antiga_operação)
+        db.execute("""
+        UPDATE
+            wastemap
+        SET
+            dest_final = ?
+        WHERE
+            dest_final = ?
+        """, nova_operação, antiga_operação)
 
         return render_template("operation_description.html", all_operations=all_operations)
 
@@ -900,11 +1141,7 @@ def mirr():
         strftime('%Y', data) DESC
     """, session["user_id"])
 
-    print("TODOS OS ANOS POSSÍVEIS: ", years)
-
-
     # Todos os estabelecimentos e todas as obras com APA "GERAL TEC"
-
     if request.method == "GET":
 
         return render_template("mirr.html", mirr_options = mirr_options, years=years)
@@ -913,15 +1150,17 @@ def mirr():
         estab_chosen = request.form.get("estab_chosen")
         year = request.form.get("year")
 
-        print("TYPE OF ESTAB CHOSEN: ", type(estab_chosen))
-        print("TYPE OF YEAR: ", type(year))
-
         # Face ao user que se encontra logado, determinar o username do produtor:
-        producer = db.execute ("SELECT username FROM users\
-            WHERE users.id = ?", session["user_id"])
+        producer = db.execute ("""
+        SELECT
+            username
+        FROM
+            users
+        WHERE
+            users.id = ?
+        """, session["user_id"])
+            
         producer = producer[0]["username"]
-        print("TYPE OF PRODUCER: ", type(producer))
-
 
         # Fazendo recurso a Common Table Expression (CTE)
         # Fontes:
@@ -969,8 +1208,6 @@ def mirr():
             """, **params_subset(["obra","empresa_id","ano","produtor"]))
 
 
-        print("MIRR NÃO GT: ", mirr)
-
     # Para os MIRR, APA do estabelecimento GT - Geral Tecnorém
     else:
         mirr = db.execute("""
@@ -1013,9 +1250,6 @@ def mirr():
     if not mirr:
         flash("Não existem registos para as opções selecionadas")
         return redirect("/mirr")
-
-
-    print("MIRR: ", mirr)
 
     return render_template("mirr.html", mirr=mirr, mirr_options = mirr_options, years=years)
 
