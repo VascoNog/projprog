@@ -63,7 +63,7 @@ MIRR
     <tbody>
         {% for row in mirr %}
         <tr>
-            <td>{{ row.codLER }}</td>
+            <td>{{ row.codLER | format_codLER_excel }}</td>
             <td>{{ row.total | format_ton }}</td>
             <td>{{ row.dest }}</td>
             <td>{{ row.nif_dest }}</td>

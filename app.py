@@ -7,15 +7,14 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
 
-from helpers import apology, login_required, format_codLER, format_ton
+from helpers import apology, login_required, format_codLER, format_codLER_excel, format_ton
 
 # Configure application
 app = Flask(__name__)
 
-# APAGAR SE ACABAR POR NÃO UTILIZAR EM JINJA
 app.jinja_env.filters["format_codLER"] = format_codLER
+app.jinja_env.filters["format_codLER_excel"] = format_codLER_excel
 app.jinja_env.filters["format_ton"] = format_ton
-
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
@@ -30,7 +29,6 @@ db = SQL("sqlite:///database.db")
 @login_required
 def index():
 
-
     return render_template("layout.html")
 
 
@@ -43,11 +41,11 @@ def login():
     if request.method == "POST":
         # Ensure username was submitted
         if not request.form.get("username"):
-            return apology("Faltou o nome do user", 401)
+            return apology("Faltou o nome do user")
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return apology("Faltou a palavra-passe", 401)
+            return apology("Faltou a palavra-passe")
 
         # Query database for username
         users_db = db.execute("""
@@ -64,6 +62,7 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = users_db[0]["id"]
+        flash(f"User logado: {users_db[0]['username']}")
 
         # Redirect user to home page
         if not session["user_id"]:
@@ -91,7 +90,7 @@ def register():
         username = request.form.get("username")
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
-
+        
         # dealing with the case of the user clicking
         # on the “register” button without filling in the inputs
         if not username and not password and not confirmation:
@@ -184,36 +183,29 @@ def insert():
         apa_dest = request.form.get("apa_dest")
         produtor = request.form.get("produtor")
 
-        if not data:
-            return apology("Faltou a data")
-        if not egar:
-            return apology("Faltou número da e-GAR")
-        if not obra:
-            return apology("Faltou designação da obra")
-        if not apa_associado:
-            return apology("Faltou APA do produtor da e-GAR")
-        if not transp:
-            return apology("Faltou designação do transportador")
-        if not nif_transp:
-            return apology("Faltou NIF do transportador")
-        if not matricula:
-            return apology("Faltou a matrícula")
-        if not codLER:
-            return apology("Faltou código LER")
-        if not ton:
-            return apology("Faltou tonelagem")
-        if not dest_final:
-            return apology("Faltou destino final (ex: R12)")
-        if not dest:
-            return apology("Faltou designação do destinatário")
-        if not nif_dest:
-            return apology("Faltou NIF do destinatário")
-        if not apa_dest:
-            return apology("Faltou APA do destinatário")
-        if not produtor:
-            return apology("Faltou produtor do resíduo")
-
-        # Encontrar código APA a partir de contract_short, consoante o APA associado à e-GAR
+        required_fields = [
+            ("data", "Faltou a data"),
+            ("egar", "Faltou número da e-GAR"),
+            ("obra", "Faltou designação da obra"),
+            ("apa_associado", "Faltou APA do produtor da e-GAR"),
+            ("transp", "Faltou designação do transportador"),
+            ("nif_transp", "Faltou NIF do transportador"),
+            ("matricula", "Faltou a matrícula"),
+            ("codLER", "Faltou código LER"),
+            ("ton", "Faltou tonelagem"),
+            ("dest_final", "Faltou destino final (ex: R12)"),
+            ("dest", "Faltou designação do destinatário"),
+            ("nif_dest", "Faltou NIF do destinatário"),
+            ("apa_dest", "Faltou APA do destinatário"),
+            ("produtor", "Faltou produtor do resíduo")
+        ]
+        
+        for field, specific_error_message in required_fields:
+            if not locals().get(field):
+                flash(f"A e-GAR não foi inserida no sistema! - {specific_error_message} - Repita o processo")
+                return redirect("/insert")
+   
+        # Find APA code from contract_short, depending on the APA associated with the e-GAR
         if apa_associado == 'GT':
             apa_estab = 'GT'
         elif apa_associado == 'estab':
@@ -229,10 +221,10 @@ def insert():
             apa_estab = apa_estab_db[0]["apa_code"]
             
         else:
-            return apology ("APA do produtor incorreto")
+            flash("APA do produtor incorreto")
+            return redirect("/insert")
 
-        # Encontrar designação do resíduo a partir de codLER
-
+        # Find waste name from codLER
         residuo_db = db.execute("""
         SELECT
             description
@@ -243,11 +235,11 @@ def insert():
         
         residuo = residuo_db[0]["description"]
 
-        # Parametro que pode faltar
+        # Only parameter that can be missing
         if not apa_transp:
             apa_transp = "--"
 
-        # Evitar duplicação de e-GAR's:
+        # Avoid duplicate e-GARs:
         egar_in_wastemap = db.execute("""
         SELECT
             *
@@ -261,7 +253,7 @@ def insert():
             flash(f"Uma e-GAR com o número {egar} já tinha sido submetida anteriormente, verifique no Mapa")
             return redirect("/insert")
 
-        # Inserir todos os parâmetros da e-GAR na tabela wastemap
+        # Enter all the e-GAR parameters in the wastemap table
         db.execute("""
         INSERT INTO
             wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,empresa_id)\
@@ -269,10 +261,7 @@ def insert():
         """,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,session["user_id"])
         
         return redirect('/insert')
-        
-        # return render_template("insert.html", pre_fill=pre_fill)
-                               
-
+                                 
 @app.route("/history", methods = ["GET", "POST"])
 @login_required
 def history():
@@ -305,7 +294,7 @@ def history():
         obra = request.form.get("obra")
         ano = request.form.get("year")
 
-        # Opção de ligar e-GAR's
+        # Option to link e-GAR's
         ligar_egars = request.form.get("ligar_egars")
 
         if ligar_egars == "NA":
@@ -345,7 +334,7 @@ def history():
                     data ASC
                 """,session["user_id"],ano)
 
-            # obra != "todas" and ano != "todos":
+            # contract(obra) != "all"/"todas" and year(ano) != "all"/"todos":
             else:
                 map = db.execute("""
                 SELECT
@@ -398,7 +387,7 @@ def history():
                     data ASC
                 """,session["user_id"],ano)
 
-            # obra != "todas" and ano != "todos":
+            # contract(obra) != "all"/"todas" and year(ano) != "all"/"todos":
             else:
                 map = db.execute("""
                 SELECT
@@ -449,24 +438,14 @@ def history():
                                produtores = [prod["username"] for prod in producers],
                                years=years)
 
-# APAGAR diversas informações - relativo a vários html's
+# DELETE various information relating to several html files
 @app.route("/delete", methods=["POST"])
 @login_required
 def delete():
 
     # from history.html:
     row_id_hist = request.form.get("row_id_hist")
-        
-    # from establishments.html:
-    row_id_estab = request.form.get("row_id_estab")
-
-    # from codler_description.html:
-    codLER = request.form.get("codLER")
-
-    # from operation_description.html:
-    operation = request.form.get("operation")
-
-    # history.html:
+    
     if row_id_hist:
         db.execute("""
         DELETE FROM
@@ -537,7 +516,9 @@ def delete():
         else:
             return redirect("/history")
 
-    # establishments.html:
+    # from establishments.html:
+    row_id_estab = request.form.get("row_id_estab")
+
     if row_id_estab:
         db.execute("""
         DELETE FROM 
@@ -546,8 +527,10 @@ def delete():
             id = ?
         """, row_id_estab)
         return redirect("/establishments")
-
-    # codler_description.html:
+    
+    # from codler_description.html:
+    codLER = request.form.get("codLER")
+    
     if codLER:
         db.execute("""
         DELETE FROM
@@ -556,8 +539,10 @@ def delete():
             codLER = ?
         """, codLER)
         return redirect("/codler_description")
+    
+    # from operation_description.html:
+    operation = request.form.get("operation")
 
-    # operation_description.html:
     if operation:
         db.execute("""
         DELETE FROM
@@ -568,7 +553,7 @@ def delete():
         return redirect("/operation_description")
 
 
-# EDITAR e-GARs do histórico/base de dados
+# EDIT e-GARs from the history/database
 @app.route("/edit_egar", methods=["GET","POST"])
 @login_required
 def edit_egar():
@@ -594,36 +579,29 @@ def edit_egar():
         novo_apa_dest = request.form.get("novo_apa_dest")
         novo_produtor = request.form.get("novo_produtor")
 
-        if not nova_data:
-            return apology("Faltou a data")
-        if not nova_egar:
-            return apology("Faltou número da e-GAR")
-        if not nova_obra:
-            return apology("Faltou designação da obra")
-        if not novo_apa_associado:
-            return apology("Faltou APA do produtor da e-GAR LINHA 361 EDIT EGAR")
-        if not novo_transp:
-            return apology("Faltou designação do transportador")
-        if not novo_nif_transp:
-            return apology("Faltou NIF do transportador")
-        if not nova_matricula:
-            return apology("Faltou a matrícula")
-        if not novo_codLER:
-            return apology("Faltou código LER")
-        if not nova_ton:
-            return apology("Faltou tonelagem")
-        if not novo_dest_final:
-            return apology("Faltou destino final (ex: R12)")
-        if not novo_dest:
-            return apology("Faltou designação do destinatário")
-        if not novo_nif_dest:
-            return apology("Faltou NIF do destinatário")
-        if not novo_apa_dest:
-            return apology("Faltou APA do destinatário")
-        if not novo_produtor:
-            return apology("Faltou produtor do resíduo")
+        required_fields = [
+            ("nova_data", "Faltou a data"),
+            ("nova_egar", "Faltou número da e-GAR"),
+            ("nova_obra", "Faltou designação da obra"),
+            ("novo_apa_associado", "Faltou APA do produtor da e-GAR"),
+            ("novo_transp", "Faltou designação do transportador"),
+            ("novo_nif_transp", "Faltou NIF do transportador"),
+            ("nova_matricula", "Faltou a matrícula"),
+            ("novo_codLER", "Faltou código LER"),
+            ("nova_ton", "Faltou tonelagem"),
+            ("novo_dest_final", "Faltou destino final (ex: R12)"),
+            ("novo_dest", "Faltou designação do destinatário"),
+            ("novo_nif_dest", "Faltou NIF do destinatário"),
+            ("novo_apa_dest", "Faltou APA do destinatário"),
+            ("novo_produtor", "Faltou produtor do resíduo")
+        ]
 
-        # Encontrar código APA a partir de contract_short, consoante o APA associado à e-GAR
+        for field, specific_error_message in required_fields:
+            if not locals().get(field):
+                flash(f"Não foram realizadas alterações! - {specific_error_message} - Repita o processo")
+                return redirect("/history")
+
+       # Find APA code from contract_short, depending on the APA associated with the e-GAR
         if novo_apa_associado == 'GT':
             apa_estab = 'GT'
         elif novo_apa_associado == 'estab':
@@ -635,9 +613,10 @@ def edit_egar():
             """, nova_obra)
             apa_estab = apa_estab_db[0]["apa_code"]
         else:
-            return apology ("APA do produtor incorreto")
+            flash("APA do produtor incorreto")
+            return redirect("/history")
 
-        # Encontrar nova designação do resíduo a partir de novo codLER
+        # Find new waste name from new codLER
         residuo_db = db.execute("""
         SELECT
             description
@@ -648,18 +627,18 @@ def edit_egar():
         """, novo_codLER)
         residuo = residuo_db[0]["description"]
 
-        # Parametro que pode faltar
+        # only parameter that can be missing
         if not novo_apa_transp:
             novo_apa_transp = "--"
 
-        # Eliminar a atual:
+        # eliminate the current one
         if row_id:
             db.execute("""
             DELETE FROM
                 wastemap WHERE wastemap.id = ? AND wastemap.empresa_id = ?
             """,row_id, session["user_id"])
 
-        # Evitar duplicação de e-GAR's:
+        # Avoid duplicate e-GARs:
         egar_in_wastemap = db.execute("""
         SELECT
             *
@@ -670,10 +649,10 @@ def edit_egar():
         """, nova_egar)
         
         if egar_in_wastemap:
-            flash(f"Uma e-GAR com o número {nova_egar} já tinha sido submetida anteriormente, verifique no Mapa")
+            flash(f"Não foram realizadas alterações! Uma e-GAR com o número {nova_egar} já tinha sido submetida anteriormente, verifique no Mapa")
             return redirect("/history")
 
-        # Inserir todos os parâmetros da e-GAR na tabela wastemap
+        # Enter all the e-GAR parameters in the wastemap table
         db.execute("""
         INSERT INTO
             wastemap (data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor,empresa_id)\
@@ -681,7 +660,7 @@ def edit_egar():
         """,nova_data,nova_egar,nova_obra,apa_estab,novo_transp,novo_nif_transp,nova_matricula,novo_apa_transp,\
             novo_codLER,residuo,nova_ton,novo_dest_final,novo_dest, novo_nif_dest,novo_apa_dest,novo_produtor,session["user_id"])
 
-        # Mostrar o Mapa da obra (ou da nova obra) que sofreu edição:
+        # Show the Map of the contractor (or new contractor) that has been edited:
         map = db.execute("""
         SELECT 
             id,data,egar,obra,apa_estab,transp,nif_transp,matricula,apa_transp,codLER,residuo,ton,dest_final,dest,nif_dest,apa_dest,produtor
@@ -693,7 +672,7 @@ def edit_egar():
             data ASC
         """,session["user_id"], nova_obra)
 
-        # Preparar formulário de edição sempre após a primeira e todas as seguintes edições
+        # Prepare edit form always after the first and all subsequent edits
         contracts = db.execute("""
         SELECT
             contract_short FROM apa_code_contract
@@ -749,16 +728,18 @@ def establishments():
         apa_code = request.form.get("apa_code")
         nome_estab = request.form.get("nome_estab")
         nome_estab_curto = request.form.get("nome_estab_curto")
-        if not apa_code:
-            flash("Faltou o código APA")
-            return redirect("/establishments")
-        if not nome_estab:
-            flash("Faltou nome completo do estabelecimento/obra")
-            return redirect("/establishments")
-        if not nome_estab_curto:
-            flash("Faltou nome curto do estabelecimento/obra")
-            return redirect("/establishments")
         
+        required_fields = [
+            ("apa_code","Faltou o código APA"),
+            ("nome_estab","Faltou nome completo do estabelecimento/obra"),
+            ("nome_estab_curto","Faltou nome curto do estabelecimento/obra")
+        ]
+
+        for field, specific_error_message in required_fields:
+            if not locals().get(field):
+                flash(f"O estabelecimento não foi inserido no sistema! - {specific_error_message} - Repita o processo")
+                return redirect("/establishments")
+ 
         # Delete whitespace at the beginning and end of a string using strip() method
         nome_estab = nome_estab.strip()
         nome_estab_curto = nome_estab_curto.strip()
@@ -773,7 +754,7 @@ def establishments():
         SELECT
             apa_code
         FROM
-            pa_code_contract""")
+            apa_code_contract""")
         
         print("ALL APA CODES: ", all_apa_codes)
         if apa_code[:3] == "APA":
@@ -813,7 +794,7 @@ def establishments():
         
         return render_template("establishments.html", all_estab=all_estab)
 
-# EDITAR estabelecimentos criados
+# EDIT establishments created
 @app.route("/edit_establishments", methods=["GET","POST"])
 @login_required
 def edit_establishments():
@@ -828,17 +809,18 @@ def edit_establishments():
         nova_design_longa = request.form.get("nova_design_longa")
         antiga_design_curta = request.form.get("antiga_design_curta")
         nova_design_curta = request.form.get("nova_design_curta")
-
-        if not novo_apa:
-            flash("Faltou APA")
-            return redirect("/establishments")
-        if not nova_design_longa:
-            flash("Faltou nome longo do estabelecimento/obra")
-            return redirect("/establishments")
-        if not nova_design_curta:
-            flash("Faltou nome curto do estabelecimento/obra")
-            return redirect("/establishments")
         
+        required_fields = [
+            ("novo_apa","Faltou o código APA"),
+            ("nova_design_longa","Faltou nome completo do estabelecimento/obra"),
+            ("nova_design_curta","Faltou nome curto do estabelecimento/obra")
+        ]
+
+        for field, specific_error_message in required_fields:
+            if not locals().get(field):
+                flash(f"Não foram realizadas alterações! - {specific_error_message} - Repita o processo")
+                return redirect("/establishments")
+
         # Delete whitespace at the beginning and end of a string using strip() method
         nova_design_longa = nova_design_longa.strip()
         nova_design_curta = nova_design_curta.strip()
@@ -848,7 +830,7 @@ def edit_establishments():
             flash("Deve escrever um novo código APA que comece com 'APA' ou escrever 'GT' (referente a 'Geral Tecnorém')")
             return redirect("/establishments")
 
-        # Verificar se o novo APA não se encontra já inserido na base de dados:
+        # Check that the new APA is not already in the database:
         if novo_apa != antigo_apa:
             all_apa_codes = db.execute("SELECT apa_code FROM apa_code_contract")
             if novo_apa[:3] == "APA":
@@ -876,7 +858,7 @@ def edit_establishments():
                         flash(f"As alterações foram efetivadas, contudo pode existir um possível conflito com a(s) linha(s) do(s) seguinte(s) APA('s): {apa} - Corrija antes de avançar!")
     
 
-        # Realizar as alterações no estabelecimento/obra
+        # Make changes to the establishment/contractor
         db.execute("""
         DELETE FROM
             apa_code_contract
@@ -898,7 +880,7 @@ def edit_establishments():
         ORDER BY
             apa_code DESC""")
 
-        # Atualizar wastemap: designação curta da obra e apa do estabelecimento
+        # Update wastemap: short name of the contractor and APA code of the establishment
         db.execute("""
         UPDATE 
             wastemap
@@ -985,7 +967,7 @@ def edit_codler_description():
             flash("Faltou descrição do código LER")
             return redirect("/codler_description")
 
-        # Realizar as alterações na codLER_description table
+        # Make changes to the codLER_description table
         db.execute("""
         DELETE FROM
             codler_description
@@ -1006,7 +988,7 @@ def edit_codler_description():
         ORDER BY
             codLER DESC""")
 
-        # Atualizar wastemap: código LER
+        # Update wastemap: LER code
         db.execute("""
         UPDATE
             wastemap
@@ -1083,7 +1065,7 @@ def edit_operation_description():
             flash("Faltou descrição da operação de valorização/eliminação")
             return redirect("/operation_description")
 
-        # Realizar as alterações na operação de valorização/eliminação
+        # Make changes to the valorization/elimination operation
         db.execute("""
         DELETE FROM
             operation_description WHERE operation = ?
@@ -1103,7 +1085,7 @@ def edit_operation_description():
         ORDER BY
             operation DESC""")
 
-        # Atualizar wastemap: operação
+        # Update wastemap: operation
         db.execute("""
         UPDATE
             wastemap
@@ -1141,7 +1123,7 @@ def mirr():
         strftime('%Y', data) DESC
     """, session["user_id"])
 
-    # Todos os estabelecimentos e todas as obras com APA "GERAL TEC"
+    # All establishments and all contracts with APA "GENERAL TEC"
     if request.method == "GET":
 
         return render_template("mirr.html", mirr_options = mirr_options, years=years)
@@ -1150,7 +1132,7 @@ def mirr():
         estab_chosen = request.form.get("estab_chosen")
         year = request.form.get("year")
 
-        # Face ao user que se encontra logado, determinar o username do produtor:
+        # Given the user who is logged in, determine the producer's username:
         producer = db.execute ("""
         SELECT
             username
@@ -1161,9 +1143,9 @@ def mirr():
         """, session["user_id"])
             
         producer = producer[0]["username"]
-
-        # Fazendo recurso a Common Table Expression (CTE)
-        # Fontes:
+        
+        # Using Common Table Expression (CTE)
+        # Sources:
         # https://www.sqlitetutorial.net/sqlite-cte/
         # https://learnsql.com/blog/cte-vs-subquery/
 
@@ -1180,7 +1162,7 @@ def mirr():
             FROM
                 wastemap
             WHERE
-                obra = :obra AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano) AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
+                obra = :obra AND dest_final != 'AP' AND empresa_id = :empresa_id AND strftime('%Y', data) = :ano AND produtor = :produtor
             GROUP BY
                 codLER
             )
@@ -1200,15 +1182,17 @@ def mirr():
             JOIN
                 total_each_LER ON wastemap.codLER = total_each_LER.codLER
             WHERE
-                obra = :obra AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano) AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
+                obra = :obra AND dest_final != 'AP' AND empresa_id = :empresa_id AND strftime('%Y', data) = :ano AND produtor = :produtor
             GROUP BY
                 wastemap.codLER,
-                wastemap.dest_final,
-                wastemap.transp
+                wastemap.apa_dest,
+                wastemap.dest,
+                wastemap.transp,
+                wastemap.dest_final
             """, **params_subset(["obra","empresa_id","ano","produtor"]))
 
 
-    # Para os MIRR, APA do estabelecimento GT - Geral Tecnorém
+    # For the MIRR, APA of the establishment GT - General Tecnorém
     else:
         mirr = db.execute("""
         WITH total_each_LER AS (
@@ -1218,8 +1202,7 @@ def mirr():
             FROM
                 wastemap
             WHERE
-                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano) \
-                    AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
+                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = :empresa_id AND strftime('%Y', data) = :ano AND produtor = :produtor
             GROUP BY
                 codLER
             )
@@ -1239,12 +1222,13 @@ def mirr():
             JOIN
                 total_each_LER ON wastemap.codLER = total_each_LER.codLER
             WHERE
-                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = :empresa_id AND (substr(data, 7, 4) = :ano OR strftime('%Y', data) = :ano)\
-                    AND (produtor = :produtor OR produtor = 'Produtor Tecnorém')
+                apa_estab = 'GT' AND dest_final != 'AP' AND empresa_id = :empresa_id AND strftime('%Y', data) = :ano AND produtor = :produtor
             GROUP BY
                 wastemap.codLER,
-                wastemap.dest_final,
-                wastemap.transp
+                wastemap.apa_dest,
+                wastemap.dest,
+                wastemap.transp,
+                wastemap.dest_final
             """, **params_subset(["empresa_id","ano","produtor"]))
 
     if not mirr:
@@ -1252,24 +1236,3 @@ def mirr():
         return redirect("/mirr")
 
     return render_template("mirr.html", mirr=mirr, mirr_options = mirr_options, years=years)
-
-
-
-# A FAZER:
-# Avaliar inserir parametro "id" nas tabelas da base de dados que nao possuem.
-# Exportar excel pdf do Mapa de resíduos - Mas talvez com os dados completos.
-# adicionar mais mensagens flash
-# MIRR
-
-# Adicionar no MIRR "Produtor Tecnorém" - talvez escolher num SELECT
-
-# QUERY DO MIRR:
-# NAS LINHAS obra = ? AND NOT dest_final == 'AP' AND empresa_id = ? AND (substr(data, 7, 4) = ? OR strftime('%Y', data) = ?)
-# Colocar depois apenas strftime('%Y', data) = ?, o website da-nos a data no formato aaaa-mm-dd, mas para já temos também no formato dd-mm-aaaa devido ao "upload" feito a partir do original
-# o mesmo para (produtor = ? OR produtor = 'Produtor Tecnorém') - só interessa produtor = ?
-
-# Formatar todas as queries no código. Mudar os NOT para !=
-
-# No final devo alterar a tabela wastemap na parte do produtor de "Produtor Tecnorém" para "Tecnorém apenas"
-
-# Pode existir a hipótese de uma obra ter estabelecimento criado mas as e-GAR's por lapso saírem com GT - Prevêr essa situação

@@ -64,7 +64,7 @@ History
             <th>NIF Transp.</th>
             <th>Matrícula</th>
             <th>APA Transp.</th>
-            <th>Código LER</th>
+            <th>Código</th>
             <th>Resíduo</th>
             <th>Qtd(ton.)</th>
             <th>Destino Final</th>
@@ -87,7 +87,7 @@ History
             <td>{{ row.nif_transp }}</td>
             <td>{{ row.matricula }}</td>
             <td>{{ row.apa_transp }}</td>
-            <td>{{ row.codLER }}</td>
+            <td>{{ row.codLER | format_codLER_excel }}</td>
             <td>{{ row.residuo }}</td>
             <td>{{ row.ton }}</td>
             <td>{{ row.dest_final }}</td>
@@ -176,8 +176,8 @@ History
                     </div>
                     <br>
                     <div class="form-group">
-                        <label for="novo_transp">Destinatário:</label>
-                        <input name="novo_transp" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.dest}}" type="text">
+                        <label for="novo_dest">Destinatário:</label>
+                        <input name="novo_dest" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.dest}}" type="text">
                         <input name="novo_nif_dest" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.nif_dest}}" type="number" min="99999999" max="999999999">
                         <input name="novo_apa_dest" class="form-control text-center mx-auto" style="background-color: lightgrey; color: black" value="{{row.apa_dest}}" type="text">
                     </div>
@@ -236,5 +236,6 @@ History
         XLSX.writeFile(workbook, "GestResProduzidos_dd-mm-aaaa.xlsx");
     }
 </script>
+
 
 {% endblock %}

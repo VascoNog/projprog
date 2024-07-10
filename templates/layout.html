@@ -15,7 +15,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
         <!-- Para incluir a biblioteca SheetJS -> de forma a conseguir exportar tabelas para excel -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.6/xlsx.full.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
         <!-- Fazer com que este title apareça -->
         <title>TecOptimizer: {% block title %}{% endblock %}</title>
@@ -53,8 +53,7 @@
         </nav> 
         {% if get_flashed_messages() %}
         <header>
-            <!-- <div class="alert alert-primary mb-0 text-center" role="alert"> -->
-            <div>
+            <div class="text-center text-danger" style="background-color: lightgrey">
                 {{ get_flashed_messages() | join(" ") }}
             </div>
         </header>

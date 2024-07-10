@@ -57,21 +57,15 @@ def format_codLER(value):
         return f"{value[:2]} {value[2:4]} {value[4:]}"
     
     if len(value) == 8 and value[0:2].isdigit() and value[2].isspace() and value[3:5].isdigit() and value[5].isspace() and value[6:].isdigit():
-        return value
+        return f"{value}"
     
     return None
+
+# Colocar nas tabelas do "history" e do "mirr" o código LER no formato "LER XX XX XX"
+def format_codLER_excel(value):
+    new_value = "LER " + value
+    return new_value
 
 def format_ton(value):
     """Format Ton value"""
     return f"{value:,.3f}"
-
-# def get_year(value):
-#     """Format hour"""
-#     return f"{value: %Y}"
-
-
-
-
-    
-    
-        
