@@ -112,6 +112,6 @@ Logo "Wastimizer" desenhado por [Elsa Ferreira]
 
 ### Autor do Projecto
 ### Project Author
-Vasco Nogueira da Rocha - 
+*Vasco Nogueira da Rocha - <https://github.com/VascoNog/>*
 
 
