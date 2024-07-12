@@ -105,6 +105,13 @@ Logo "Wastimizer" desenhado por [Elsa Ferreira]
 <br>
 **EN**
 *Logo "Wastimizer" designed by [Elsa Ferreira]*
+<br>
+<br>
+<br>
 
+
+### Autor do Projecto
+### Project Author
+Vasco Nogueira da Rocha - 
 
 
