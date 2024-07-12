@@ -2,17 +2,19 @@
 # WASTIMIZER - Website para optimizar a gestão de resíduos de uma empresa 
 # WASTIMIZER - *Website to optimize a company's waste management*
 #### Video Demo:  <URL HERE>
-
-#### Português (PT)
-**Descrição**: Wastimizer é um website desenvolvido para a gestão eficiente de resíduos em empresas que produzem grandes volumes de resíduos, seja na construção civil ou em qualquer outro setor industrial. O Wastimizer foi desenhado com base na legislação portuguesa e europeia, atendendo também às necessidades de reporte à APA – Agência Portuguesa do Ambiente.
-
-#### *English (EN)*
-***Description**: Wastimizer is a website designed for efficient waste management in companies that produce large volumes of waste, whether in construction or any other industrial sector. Wastimizer was developed based on Portuguese and European legislation, also addressing the reporting requirements to APA – Portuguese Environment Agency.*
 <br>
 <br>
+<br>
+
+### ÂMBITO
+### *SCOPE*
+**Português (PT)**: Wastimizer é um website desenvolvido para a gestão eficiente de resíduos em empresas que produzem grandes volumes de resíduos, seja na construção civil ou em qualquer outro setor industrial. O Wastimizer foi desenhado com base na legislação portuguesa e europeia, atendendo também às necessidades de reporte à APA – Agência Portuguesa do Ambiente. <br> ***English (EN)**: Wastimizer is a website designed for efficient waste management in companies that produce large volumes of waste, whether in construction or any other industrial sector. Wastimizer was developed based on Portuguese and European legislation, also addressing the reporting requirements to APA – Portuguese Environment Agency.*
+<br>
+<br>
+<br>
+
 ### Descrição de cada template
 ### *Description of each template*
-#### Templates
 #### layout.html
 **PT**: Este template serve como layout base para a aplicação web "Wastimizer". Ele define a estrutura geral da página, incluindo as configurações de codificação e as referências a estilos e scripts externos. No cabeçalho, estão incluídos metadados, links para o Bootstrap (para estilização responsiva) e a biblioteca SheetJS (para exportação de tabelas para Excel). O título da página é dinâmico, permitindo que diferentes títulos sejam definidos em outros templates através do bloco "{% block title %}{% endblock %}". No corpo da página, existe uma barra de navegação que se adapta consoante a sessão do utilizador. Se o utilizador estiver autenticado, são exibidos links para várias seções da aplicação, como "Estabelecimentos", "LER", "Operações", "Inserir e-GAR's", "Mapa" e "MIRR", além de uma opção para sair. Se o utilizador não estiver autenticado, são apresentados links para registo e login, juntamente com o logotipo da aplicação. Além disso, o layout inclui um sistema para exibir mensagens de feedback (flash messages) ao utilizador, que aparecem em destaque em caso de qualquer notificação. O bloco "{% block main %}{% endblock %}" permite que outros templates insiram conteúdo específico dentro do corpo da página. <br> ***EN**: This template serves as the base layout for the web application "Wastimizer." It defines the overall structure of the page, including encoding settings and references to external styles and scripts. In the header, metadata, links to Bootstrap (for responsive styling), and the SheetJS library (for exporting tables to Excel) are included. The page title is dynamic, allowing different titles to be defined in other templates through the block "{% block title %}{% endblock %}". In the body of the page, there is a navigation bar that adapts based on the user's session. If the user is authenticated, links to various sections of the application, such as "Establishments," "LER," "Operations," "Insert e-GARs," "Map," and "MIRR," are displayed, along with an option to log out. If the user is not authenticated, links for registration and login are presented, along with the application's logo. Additionally, the layout includes a system for displaying feedback messages (flash messages) to the user, which appear prominently in case of any notifications. The block "{% block main %}{% endblock %}" allows other templates to insert specific content within the body of the page.*
 <br>
@@ -44,12 +46,13 @@ aplicadas clicando no botão "Aplicar alterações". Existem scripts JavaScript 
 **PT**: Este template é utilizado para apresentar o "Mapa de Resíduos" na aplicação. A página, intitulada "History", permite ao utilizador filtrar dados de resíduos por empreitada e ano, além de oferecer uma opção para incluir armazenamento preliminar e recolhas na sede da empresa. O utilizador pode escolher entre várias opções disponíveis em listas suspensas. No topo da página, há um botão para exportar os dados apresentados na tabela para um arquivo Excel. A tabela exibe informações detalhadas sobre os resíduos, incluindo a data, número de e-GAR, obra, transportador, código LER, quantidade, destino final, e informações sobre o destinatário e produtor. Cada linha da tabela inclui botões para editar ou apagar entradas. Ao clicar em "Apagar", o utilizador confirma a exclusão, enquanto a opção "Editar" permite modificar os dados existentes. A tabela é responsiva e utiliza classes do Bootstrap para garantir uma apresentação adequada em diferentes dispositivos. <br>***EN**: This template is used to present the "Waste Map" in the application. The page, titled "History," allows the user to filter waste data by project and year, as well as offering an option to include preliminary storage and pickups at the company's headquarters. The user can choose from various options available in dropdown lists. At the top of the page, there is a button to export the data presented in the table to an Excel file. The table displays detailed information about the waste, including the date, e-GAR number, project, transporter, LER code, quantity, final destination, and information about the recipient and producer. Each row of the table includes buttons to edit or delete entries. Clicking "Apagar"("Delete") prompts the user to confirm the deletion, while the "Editar"("Edit") option allows modification of existing data. The table is responsive and uses Bootstrap classes to ensure proper presentation across different devices.*
 <br>
 
-### mirr.html
+#### mirr.html
 **PT**: Este template é utilizado para o "Mapa Integrado de Registo de Resíduos" (MIRR). O MIRR é uma formalidade que deve ser apresentada todos os anos à APA (Agência Portuguesa do Ambiente), no âmbito da Campanha Anual de Reporte. A estrutura do MIRR difere da do mapa de resíduos (history), pois agrupa os dados por código LER, código APA do destinatário, designação do destinatário (OGR - Operador de Gestão de Resíduos), transportador (empresa responsável pelo transporte dos resíduos da obra para o destinatário/OGR) e operação de valorização/eliminação. Além disso, são apresentados os totais de resíduos (tonelagem) consoante estes agrupamentos. A página permite ao utilizador filtrar os dados do MIRR por estabelecimento e ano. Os utilizadores podem escolher entre opções de estabelecimentos e selecionar o ano desejado para gerar o relatório. No topo da página, existe um botão para exportar os dados da tabela para um arquivo Excel. A tabela apresenta informações detalhadas, incluindo o código LER, quantidade de resíduos por tipo, destinatário, NIF do destinatário, APA do destinatário, operação realizada, quantidade por empresa e detalhes sobre o transportador. Os dados são apresentados de forma clara e organizada, utilizando classes do Bootstrap para garantir uma boa apresentação visual. A funcionalidade de exportação para Excel é implementada com a biblioteca SheetJS, facilitando o download dos dados para análise posterior. <br> ***EN**: This template is used for something similiar to "Integrated Waste Registration Map" (MIRR). The MIRR is a formal requirement that must be submitted annually to the APA (Portuguese Environment Agency) as part of the Annual Reporting Campaign. The structure of the MIRR differs from that of the waste map (history) as it groups data by LER code, APA code of the recipient, designation of the recipient (OGR - Waste Management Operator), transporter (the company responsible for transporting the waste from the project to the recipient/OGR), and valorization/elimination operation. Additionally, total waste (tonnage) is presented according to these groupings. The page allows the user to filter MIRR data by establishment and year. Users can choose from options for establishments and select the desired year to generate the report. At the top of the page, there is a button to export the table data to an Excel file. The table presents detailed information, including LER code, quantity of waste by type, recipient, NIF of the recipient, APA of the recipient, operation performed, quantity by company, and details about the transporter. The data is presented clearly and organized, using Bootstrap classes to ensure good visual presentation. The export to Excel functionality is implemented with the SheetJS library, facilitating the download of data for later analysis.*
 <br>
 
 #### apology.html
 **PT**: Este template é projetado para exibir uma mensagem de desculpa (mensagem de erro) ao utilizador. O título da página é definido como "Apology". No bloco principal, apresenta-se uma mensagem personalizada, armazenada na variável "{{ message }}", que é exibida durante o processo de registo e/ou login, esclarecendo a situação ao utilizador. Adicionalmente, um segundo elemento exibe o valor da variável "{{ code }}", que corresponde a um códido de erro (Status). O layout é estilizado com classes CSS, garantindo que a apresentação visual da mensagem seja clara e informativa. <br> ***EN**: This template is designed to display an apology message to the user. The page title is set as "Apology." In the main block, a personalized message stored in the variable "{{ message }}" is presented, displayed during the registration and/or login process, clarifying the situation to the user. Additionally, a second element shows the value of the variable "{{ code }}", which corresponds to an error code (Status). The layout is styled with CSS classes, ensuring that the visual presentation of the message is clear and informative.*
+<br>
 <br>
 <br>
 
@@ -60,23 +63,48 @@ aplicadas clicando no botão "Aplicar alterações". Existem scripts JavaScript 
 <br>
 
 #### helpers.py
-
-**PT**: **Funções e Decoradores**: **Função "apology"**: Renderiza uma mensagem de desculpa para o utilizador. A função inclui uma subfunção escape que escapa caracteres especiais conforme especificado, permitindo uma apresentação adequada na interface; **Função "login_required(f)"**: Decorador que protege rotas, exigindo que o utilizador esteja autenticado. Se o utilizador não estiver logado, será redirecionado para a página de login; **Formatação de Dados**: **format_codLER(value)**: Formata códigos "LER" para um dos dois formatos permitidos: "XX XX XX" ou "XXXXXX". Valida o formato do código introduzido e, se válido, realiza a formatação apropriada; **format_codLER_excel(value)**: Prepara o código "LER" para exportação em Excel, adicionando o prefixo "LER " ao código fornecido, assegurando que esteja no formato correto para tabelas; **format_ton(value)**: Formata valores em toneladas com precisão de três casas decimais, utilizando separadores de milhar para facilitar a leitura. <br>**EN**: **Functions and Decorators**: **Function "apology"**: Renders an apology message to the user. The function includes a subfunction escape that escapes special characters as specified, allowing for proper presentation in the interface; **Function "login_required(f)"**: A decorator that protects routes, requiring the user to be authenticated. If the user is not logged in, they will be redirected to the login page; **Data Formatting**: **format_codLER(value)**: Formats "LER" codes to one of the two allowed formats: "XX XX XX" or "XXXXXX". It validates the format of the entered code and, if valid, performs the appropriate formatting; **format_codLER_excel(value)**: Prepares the "LER" code for export to Excel by adding the prefix "LER " to the provided code, ensuring it is in the correct format for tables; **format_ton(value)**: Formats ton values to three decimal places, using thousand separators for improved readability. 
+**PT**: **Funções e Decoradores**: **Função "apology"**: Renderiza uma mensagem de desculpa para o utilizador. A função inclui uma subfunção escape que escapa caracteres especiais conforme especificado, permitindo uma apresentação adequada na interface; **Função "login_required(f)"**: Decorador que protege rotas, exigindo que o utilizador esteja autenticado. Se o utilizador não estiver logado, será redirecionado para a página de login; **Formatação de Dados**: **format_codLER(value)**: Formata códigos "LER" para um dos dois formatos permitidos: "XX XX XX" ou "XXXXXX". Valida o formato do código introduzido e, se válido, realiza a formatação apropriada; **format_codLER_excel(value)**: Prepara o código "LER" para exportação em Excel, adicionando o prefixo "LER " ao código fornecido, assegurando que esteja no formato correto para tabelas; **format_ton(value)**: Formata valores em toneladas com precisão de três casas decimais, utilizando separadores de milhar para facilitar a leitura. <br>***EN**: **Functions and Decorators**: **Function "apology"**: Renders an apology message to the user. The function includes a subfunction escape that escapes special characters as specified, allowing for proper presentation in the interface; **Function "login_required(f)"**: A decorator that protects routes, requiring the user to be authenticated. If the user is not logged in, they will be redirected to the login page; **Data Formatting**: **format_codLER(value)**: Formats "LER" codes to one of the two allowed formats: "XX XX XX" or "XXXXXX". It validates the format of the entered code and, if valid, performs the appropriate formatting; **format_codLER_excel(value)**: Prepares the "LER" code for export to Excel by adding the prefix "LER " to the provided code, ensuring it is in the correct format for tables; **format_ton(value)**: Formats ton values to three decimal places, using thousand separators for improved readability.*
+<br>
+<br>
 <br>
 
+### Ficheiros Static
+### *Static Files*
+#### style.css
+**PT**: O ficheiro style.css define uma parte do estilo visual da aplicação web Wastimizer, melhorando a interface do utilizador com estilos personalizados para a navegação, botões e tabelas. As regras de estilo da barra de navegação personalizam a aparência dos elementos, incluindo o tamanho e a cor da fonte, com efeitos de hover que alteram a cor do texto para melhorar a interatividade. Os botões de "logout", "registo" e "login" também possuem estilos específicos, incluindo tamanhos e cores de fonte, além de estados ativos que criam um efeito de clique com alterações na cor de fundo e sombreamento. O ficheiro define ainda cores de fundo para várias secções, na tentativa de garantir uma estética coesa em toda a aplicação. No que diz respeito à formatação de tabelas, estabelece estilos para tabelas de entrada e saída, incluindo famílias de fontes, espaçamento e efeitos de hover para melhorar a legibilidade e usabilidade, com cores de linha alternadas para uma melhor distinção visual. Em suma, este ficheiro CSS contribui para uma interface intuitiva, promovendo a facilidade de navegação e gestão de dados na aplicação. <br> ***EN**: The style.css file defines part of the visual style of the Wastimizer web application, enhancing the user interface with custom styles for navigation, buttons, and tables. The navigation bar style rules customize the appearance of elements, including font size and color, with hover effects that change the text color to improve interactivity. The "logout," "register," and "login" buttons also have specific styles, including font sizes and colors, as well as active states that create a click effect with changes in background color and shadowing. The file also defines background colors for various sections to ensure a cohesive aesthetic throughout the application. Regarding table formatting, it establishes styles for input and output tables, including font families, padding, and hover effects to enhance readability and usability, with alternating row colors for better visual distinction. In summary, this CSS file contributes to an intuitive interface, promoting ease of navigation and data management within the application.*
+<br>
+
+#### wastimizerLogo.png
+**PT**: Logo "Wastimizer" - ver secção de Agradecimentos
+<br>
+***EN**: Logo "Wastimizer" - See Acknowledgements section*
+<br>
+<br>
+<br>
 
 ### Melhorias a realizar
 ### *Improvements to be made*
 **PT**:
 + Recuperação de palavra-passe
 + Garantir maior força na palavra-passe que é escolhida pelo utilizador
++ Adicionar botão para eliminar data específica (ex: Eliminar toda a informação relativa a um ano específico ou estabelecimento/obra)
 <br>
 
 **EN**:
-+ Password recovery
-+ Ensure greater strength in the password chosen by the user
++ *Password recovery*
++ *Ensure greater strength in the password chosen by the user*
++ *Add a button to eliminate specific data (e.g., eliminate all the information from a specific year or establishment/contractor).*
+<br>
+<br>
+<br>
 
-
+### Agradecimentos
+### *Acknowledgements*
+**PT**
+Logo "Wastimizer" desenhado por [Elsa Ferreira]
+<br>
+**EN**
+*Logo "Wastimizer" designed by [Elsa Ferreira]*
 
 
 
