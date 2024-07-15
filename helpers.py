@@ -9,7 +9,7 @@ from flask import redirect, render_template, request, session
 from functools import wraps
 
 
-# Baseado no exercício "finance" do CS50
+# Apology messages: based on the CS50 finance exercise
 def apology(message, code=400):
     """Render message as an apology to user."""
 
@@ -61,7 +61,7 @@ def format_codLER(value):
     
     return None
 
-# Colocar nas tabelas do "history" e do "mirr" o código LER no formato "LER XX XX XX"
+# Put the LER code in the "history" and "mirr" tables in the format "LER XX XX XX"
 def format_codLER_excel(value):
     new_value = "LER " + value
     return new_value

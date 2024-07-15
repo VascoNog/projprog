@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 {% extends "layout.html" %}
 
 {% block title %}
@@ -36,7 +38,7 @@ Estabelecimentos
         </tr>
     </thead>
     <tbody>
-        {% for row in all_estab %}
+        {%for row in all_estab%}
         <tr>
             <td>{{ row.apa_code }}</td>
             <td>{{ row.contract_full }}</td>
@@ -91,10 +93,12 @@ Estabelecimentos
 </table>
 
 <script>
+    {# I have asked Chat GPT for syntax and better understanding #}
     function showConfirmDelete(rowId) {
         var rowForDeleting = "deleteEstab" + rowId;
         var deletingForm = document.getElementById(rowForDeleting);
         if (deletingForm) {
+            {# I have asked Chat GPT for syntax and better understanding #}
             deletingForm.style.display = deletingForm.style.display === 'none' ? 'block' : 'none';
         }
     }

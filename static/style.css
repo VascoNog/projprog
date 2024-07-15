@@ -1,40 +1,58 @@
+/* Flash message style after login */
+.login-message {
+    font-size: 20px;
+    text-align: center;
+    color: white;
+    background-color: rgb(46, 133, 192);
+}
+
+/* Flash message style for all errors */
+.all-errors-messages {
+    font-size: 20px;
+    text-align: center;
+    color: tomato;
+    background-color: lightgray;
+}
+
+
 nav .navbar-brand {
-    font-size: 25px; /* Tamanho de fonte personalizado */
+    font-size: 25px;
     color: rgb(175, 175, 175);
     /* font-weight: bold; */
 }
 
-/* Estilo quando o rato passa por cima */
+/* Style when mouse hovers over */
 nav .navbar-brand:hover {
-    color: rgb(49, 39, 131); /* Texto muda para azul claro*/
+    color: rgb(49, 39, 131);
 }
 
 .navbar-brand.logout{
-    font-size: 20px; /* Tamanho de fonte personalizado */
+    font-size: 20px; 
     color: grey;
     font-style: italic;
     font-weight: bold;
 }
 
-/* Estilo quando o rato passa por cima de "logout" */
-nav .navbar-brand.logout:hover {
-    color: tomato; /* Texto muda para azul claro*/
-}
 
-/* Estilo dos "botões" de registo e login */
+/* Style when mouse hovers over "logout" */
+nav .navbar-brand.logout:hover {
+    color: tomato;
+} 
+
+/* Style of the registration and login buttons */
 .navbar-brand.registerlogin{
-    font-size: 25px; /* Tamanho de fonte personalizado */
+    font-size: 25px;
     font-style: italic;
     font-weight: bold;
 }
 
 
 nav .bg-light-gray {
-    background-color: lightgray; /* Cinza claro */
+    background-color: lightgray;
 }
 
 .body_layout {
-    background-color: #fdf3e4; /*Cor beige background  */
+    background-color: #ede5d9;
 }
 
 .inputsForms {
@@ -47,11 +65,11 @@ nav .bg-light-gray {
     font-weight: bold;
     background-color: green;
     border: none;
-    border-radius: 10px; /* Arredondar vértices do botão */
+    border-radius: 10px; /* Round button vertices */
 }
 
 
-/* criar efeito de click */
+/* create click effect */
 .exportTableToExcelButton:active {
     background-color: #3e8e41;
     box-shadow: 0 4px #666;
@@ -60,7 +78,7 @@ nav .bg-light-gray {
 
 .delet_edit_bttn {
     border: none;
-    border-radius: 10px; /* Arredondar vértices do botão */
+    border-radius: 10px; /* Round button vertices */
 }
 
 
@@ -69,11 +87,8 @@ nav .bg-light-gray {
 }
 
 /* Tables */
-
-
  /* INPUT TABLES */
- /* GARANTIR A DISPONIBILIDADE DE VÁRIOS TIPOS DE LETRA, CONSOANTE O BROWSER */
-
+ /* ENSURE THE AVAILABILITY OF VARIOUS FONTS, DEPENDING ON THE BROWSER */
 #input_tables {
     font-family: Arial, Helvetica, sans-serif;
     border-collapse: collapse;

@@ -41,11 +41,11 @@ def login():
     if request.method == "POST":
         # Ensure username was submitted
         if not request.form.get("username"):
-            return apology("Faltou o nome do user")
+            return apology("Faltou o nome do user", 400)
 
         # Ensure password was submitted
         elif not request.form.get("password"):
-            return apology("Faltou a palavra-passe")
+            return apology("Faltou a palavra-passe"), 400
 
         # Query database for username
         users_db = db.execute("""
@@ -58,11 +58,11 @@ def login():
 
         # Ensure username exists and password is correct
         if len(users_db) != 1 or not check_password_hash(users_db[0]["hash"], request.form.get("password")):
-            return apology("User e/ou password inválidas", 403)
+            return apology("User e/ou password inválidas", 400)
 
         # Remember which user has logged in
         session["user_id"] = users_db[0]["id"]
-        flash(f"User logado: {users_db[0]['username']}")
+        flash(f"Iniciou a sessão com: {users_db[0]['username']}","login")
 
         # Redirect user to home page
         if not session["user_id"]:
@@ -107,7 +107,7 @@ def register():
 
         # If all 3 inputs are met
         if password != confirmation:
-            return apology("As palavras-passe não coincidem")
+            return apology("As palavras-passe não coincidem", 400)
 
         hashed_password = generate_password_hash(password)
 
@@ -118,7 +118,7 @@ def register():
             """,username, hashed_password)
         except:
             # table users: username TEXT NOT NULL UNIQUE
-            return apology("Desculpe, o nome de utilizador que escolheu já se encontra em uso")
+            return apology("Desculpe, o nome de utilizador que escolheu já se encontra em uso", 409)
 
         session["user_id"] = new_user
         
@@ -756,7 +756,6 @@ def establishments():
         FROM
             apa_code_contract""")
         
-        print("ALL APA CODES: ", all_apa_codes)
         if apa_code[:3] == "APA":
             for ac in all_apa_codes:
                 if ac["apa_code"] == apa_code:
@@ -811,7 +810,7 @@ def edit_establishments():
         nova_design_curta = request.form.get("nova_design_curta")
         
         required_fields = [
-            ("novo_apa","Faltou o código APA"),
+            ("novo_apa"," Faltou o código APA"),
             ("nova_design_longa","Faltou nome completo do estabelecimento/obra"),
             ("nova_design_curta","Faltou nome curto do estabelecimento/obra")
         ]
@@ -910,7 +909,7 @@ def codler_description():
         description = request.form.get("description")
 
         if not codLER:
-            flash("Faltou código LER")
+            flash("O LER não foi inserido no sistema! - Faltou código LER - Repita o processo")
             return redirect("/codler_description")
 
         codLER = format_codLER(codLER)
@@ -919,7 +918,7 @@ def codler_description():
             return redirect("/codler_description")
 
         if not description:
-            flash("Faltou descrição do código LER")
+            flash("O LER não foi inserido no sistema! - Faltou descrição do código LER - Repita o processo")
             return redirect("/codler_description")
 
         # Insert new code "LER" and description. Ensure non-duplication of code "LER"
@@ -955,16 +954,17 @@ def edit_codler_description():
         nova_descrição = request.form.get("nova_descrição")
 
         if not novo_codLER :
-            flash("Faltou código LER")
+            flash("Não foram realizadas alterações! - Faltou código LER - Repita o processo")
             return redirect("/codler_description")
 
         novo_codLER = format_codLER(novo_codLER)
         if novo_codLER == None:
-            flash("O código LER inserido deve ter 6 dígitos no formato XX XX XX ou XXXXXX")
+            flash("Não foram realizadas alterações! - O código LER inserido deve ter 6 dígitos\
+                no formato XX XX XX ou XXXXXX - Repita o processo")
             return redirect("/codler_description")
 
         if not nova_descrição:
-            flash("Faltou descrição do código LER")
+            flash("Não foram realizadas alterações! - Faltou descrição do código LER - Repita o processo")
             return redirect("/codler_description")
 
         # Make changes to the codLER_description table
@@ -1019,11 +1019,13 @@ def operation_description():
         description = request.form.get("description")
 
         if not operation:
-            flash("Faltou operação de valorização/eliminação")
+            flash("A operação não foi inserida nos sistema! - Faltou operação de valorização/eliminação - \
+                Repita o processo")
             return redirect("/operation_description")
 
         if not description:
-            flash("Faltou descrição da operação de valorização/eliminação")
+            flash("A operação não foi inserida nos sistema! - Faltou descrição da operação\
+                de valorização/eliminação - Repita o processo")
             return redirect("/operation_description")
 
         # Insert new operation and description. Ensure non-duplication
@@ -1059,10 +1061,12 @@ def edit_operation_description():
         nova_descrição = request.form.get("nova_descrição")
 
         if not nova_operação :
-            flash("Faltou operação de valorização/eliminação")
+            flash("Não foram realizadas alterações! - Faltou operação de valorização/eliminação - \
+                Repita o processo")
             return redirect("/operation_description")
         if not nova_descrição:
-            flash("Faltou descrição da operação de valorização/eliminação")
+            flash("Não foram realizadas alterações! - Faltou descrição da operação de valorização/eliminação - \
+                Repita o processo")
             return redirect("/operation_description")
 
         # Make changes to the valorization/elimination operation
@@ -1148,6 +1152,7 @@ def mirr():
         # Sources:
         # https://www.sqlitetutorial.net/sqlite-cte/
         # https://learnsql.com/blog/cte-vs-subquery/
+        # I also have used Chat GPT for a better explanation of CTE
 
     params = {"obra":estab_chosen,"empresa_id":session["user_id"],"ano":year,"produtor":producer}
     def params_subset(keys):

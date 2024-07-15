@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 {% extends "layout.html" %}
 
 {% block title %}
@@ -226,11 +228,11 @@ History
         const table = document.getElementById('output_tables');
         const tableToExport = table.cloneNode(true);
 
-        // Remove the last two columns (Apagar and Editar) from the cloned table
+        // Remove the last two columns (Delete/"Apagar" and Edit/"Editar") from the cloned table
         const rows = tableToExport.querySelectorAll('tr');
         rows.forEach(row => {
-            row.deleteCell(-1); // Delete last cell (Editar)
-            row.deleteCell(-1); // Delete second last cell (Apagar)
+            row.deleteCell(-1); // Delete last cell ("Editar" cell)
+            row.deleteCell(-1); // Delete second last cell ("Apagar" cell)
         });
         const workbook = XLSX.utils.table_to_book(tableToExport);
         XLSX.writeFile(workbook, "GestResProduzidos_dd-mm-aaaa.xlsx");
