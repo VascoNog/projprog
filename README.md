@@ -1,6 +1,6 @@
 # WASTIMIZER - Website para optimizar a gestão de resíduos de uma empresa 
 # WASTIMIZER - *Website to optimize a company's waste management*
-#### Video Demo:  <URL HERE>
+#### Video Demo: https://youtu.be/Elj8CvAvay8
 <br>
 <br>
 <br>
